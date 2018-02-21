@@ -1,0 +1,80 @@
+/* *** Globals *** */
+quit flag controls main loop continuation
+redirect_in and redirect_out flags.
+background flag stores whether command operates in background
+char* tokens[10] stores up to ten input words
+num_args[2] stores number of arguments before and after pipe.
+PATH**
+pin, pout pointers for redirection // all input and output refer to them.
+
+/* Initialization */
+quit = false;
+set tokens 1:10 NULL
+Set PATH to directories with executables.
+
+
+/* Main Loop */
+While not quit:
+Flush input
+background = false;
+pin = stdin
+pout = stdout
+print 'myshell>>'
+Get line of input and store in char* buf
+If first line of input blank (no real input), continue loop.
+num_args = evaluate input in buf
+done = Built in command
+if not done, done = External Executable.
+If not done print default message.
+
+
+
+/* Evaluate Input
+	handle redirects in this function and return number of args*/
+//Fill strings in tokens, starting at first string.
+Set flags redirect_in and redirect_out false.
+// Create two-vector of arguments. Second value is args from pipe.
+Set args= {0,0};
+For char c in buf:
+Copy one String:
+	While c is not whitespace copy c into string. endwhile
+If not args[1] increment args[0], else increment args[1]
+Catch operators:
+	| set args[1] to 1.
+	< set redirect_in true.
+	> set redirect_out true.
+If redirect_in try opening file named current token. If successful set pin equal to open file. Set redirect_in false.
+If redirect_out try opening file name current token. If successful set pout equal to open file. Set redirect_out false.
+Start reading into next string in token.
+If not reached \n or EOF, goto Copy one String. (I won't code this with goto. I'll iterate with character index.)
+If last character was '&' set background = true;
+return args
+
+
+/* Built In Command */
+// Scan down list of commands implemented in Shell.
+// Execute a hit and return true.
+// Default case: return false.
+switch on token[0]
+case "quit" set quit to true
+// TODO: other cases
+
+
+/* External Executable */
+Open file named first token
+If open fails, check PATH and try opening in bin folder.
+	If open fails, return.
+	Create child and make it run executable in PATH, passing tokens[1:num_args[0]].
+		If background, use waitpid to run in background. Else run foreground.
+Create child and make it run executable, passing tokens[1:num_args[0]].
+	If background, use waitpid to run in background. Else run foreground.
+If num_args[1] (pipe used):
+	Open pipe storing stream* in int ppipe[2].
+	Create child.
+	// Child only sees tokens after pipe
+	Increase tokens by (size of token fields * num_args[0]);
+	Pass pointers to child pipe.
+	done = Built in command
+	if not done, done = External Executable.
+	If not done print default message, and send output to screen.
+	Decrease tokens by num_args[2]

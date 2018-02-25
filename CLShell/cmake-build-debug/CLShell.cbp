@@ -82,6 +82,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="C:/Users/J/Documents/Temple University/Operating Systems/CLShell/Drivers.cpp">
+			<Option target="CLShell"/>
+		</Unit>
 		<Unit filename="C:/Users/J/Documents/Temple University/Operating Systems/CLShell/main.cpp">
 			<Option target="CLShell"/>
 		</Unit>

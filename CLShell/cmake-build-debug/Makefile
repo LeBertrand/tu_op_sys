@@ -122,6 +122,33 @@ CLShell/fast:
 	$(MAKE) -f CMakeFiles\CLShell.dir\build.make CMakeFiles/CLShell.dir/build
 .PHONY : CLShell/fast
 
+Drivers.obj: Drivers.cpp.obj
+
+.PHONY : Drivers.obj
+
+# target to build an object file
+Drivers.cpp.obj:
+	$(MAKE) -f CMakeFiles\CLShell.dir\build.make CMakeFiles/CLShell.dir/Drivers.cpp.obj
+.PHONY : Drivers.cpp.obj
+
+Drivers.i: Drivers.cpp.i
+
+.PHONY : Drivers.i
+
+# target to preprocess a source file
+Drivers.cpp.i:
+	$(MAKE) -f CMakeFiles\CLShell.dir\build.make CMakeFiles/CLShell.dir/Drivers.cpp.i
+.PHONY : Drivers.cpp.i
+
+Drivers.s: Drivers.cpp.s
+
+.PHONY : Drivers.s
+
+# target to generate assembly for a file
+Drivers.cpp.s:
+	$(MAKE) -f CMakeFiles\CLShell.dir\build.make CMakeFiles/CLShell.dir/Drivers.cpp.s
+.PHONY : Drivers.cpp.s
+
 main.obj: main.cpp.obj
 
 .PHONY : main.obj
@@ -158,6 +185,9 @@ help:
 	@echo ... CLShell
 	@echo ... edit_cache
 	@echo ... rebuild_cache
+	@echo ... Drivers.obj
+	@echo ... Drivers.i
+	@echo ... Drivers.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s

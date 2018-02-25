@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/CLShell.dir/main.cpp.obj"
+  "CMakeFiles/CLShell.dir/Drivers.cpp.obj"
   "CLShell.pdb"
   "CLShell.exe"
   "CLShell.exe.manifest"

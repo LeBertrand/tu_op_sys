@@ -3,4 +3,4 @@ project(CLShell)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(CLShell main.cpp Drivers.cpp)
+add_executable(CLShell main.cpp)

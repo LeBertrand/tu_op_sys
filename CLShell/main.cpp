@@ -2,6 +2,7 @@
 #include <cstring>
 #include <sys/types.h>
 #include <unistd.h>
+#include <cstdlib>
 
 /* Function Headers */
 void reset_preconditions();
@@ -10,6 +11,13 @@ void deploy_processes();
 void shellinit();
 void loop();
 bool builtinCommand(char**);
+/*
+ * Handle Pipe
+ *
+ * Function called if pipe detected.
+ * Just deploys other processes by calling deploy processes.
+ */
+void handle_pipe(void);
 
 /* *** Globals *** */
 const int INPUTMAX = 50;
@@ -23,14 +31,14 @@ bool background;
 //redirect_in and redirect_out flags, store unhandled redirect status.
 bool redirect_in, redirect_out;
 
-char tokens[LONGESTTOKEN][10]; //stores up to ten input words
+char *tokens[10]; //stores up to ten input words
 int num_tokens[2]; //stores number of arguments before and after pipe.
 // TODO: How do I declare pointers to PATH and to streams? Is PATH just stored as a string?
 //PATH**
-FILE* pin;
+FILE* pin = stdin;
 // TODO: How do I declare pointers to PATH and to streams? Is PATH just stored as a string?
 //PATH**
-FILE *pout; //pointers for redirection...all input and output refer to them.
+FILE *pout = stdout; //pointers for redirection...all input and output refer to them.
 
 /*
  * TODO: Summarize main function.
@@ -50,7 +58,8 @@ void shellinit()
     //set tokens 1:10 NULL
     int i;
     for(i = 0; i < 10; i++){
-        tokens[i][1] = '\0';
+        free(tokens[i]);
+        tokens[i] = NULL;
     }
     // TODO: Set PATH to directories with executables.
 }
@@ -115,10 +124,16 @@ void tokenize_input()
         charindex < INPUTMAX && linein[charindex] != NULL
             && linein[charindex] != '\n'; /* Don't know how gets comes back not terminated */
         charindex++) {
+
+        // Create string to store token.
+        char* tokenc;
+
         // Search for space, copying letters until space.
         for(tokenchar = 0; linein[tokenchar] != ' '; tokenchar++){
-            tokens[tokennumber][tokenchar]=linein[0];
+
+            tokenc[tokenchar]=linein[0];
         } // Finish copying token.
+
         if(linein[charindex] = '|'){
             num_tokens[1]++;
             pipe_called = true;
@@ -141,29 +156,39 @@ void tokenize_input()
     if(linein[charindex] == '&') background = true;
 }
 
+
 /*
  * Take tokens after tokenize_input reads them in.
- * Deploy necessary processes with correct IO pointers, pipes and argument lists.
+ * Deploy necessary processes with correct IO pointers and argument lists.
  *
  * Note: Earlier documentation included this function and tokenize_input in one
  * 'evaluate_input' function.
  * In order to make functions concise, the two have been seperated. This function
  * manages distinct processes.
  */
-void deploy_processes(int tokensoffset)
-{
-
-    /*
-    if(pipe_called){
-        pipe_t = pipe()
+    void deploy_processes(int tokensoffset)
+    {
         pid_t pid = fork();
-    }
-    if(pid==0){
-        //Child process tries to execute built in command.
+        if(!pid){
+            if(redirect_out){
+                stdout = pout;
+                if(!builtinCommand(tokens + LONGESTTOKEN * tokensoffset)){
+                    // Call external functions
+                }
 
+            }
+        }
+        /*
+        if(pipe_called){
+            pipe_t = pipe()
+            pid_t pid = fork();
+        }
+        if(pid==0){
+            //Child process tries to execute built in command.
+
+        }
+         */
     }
-     */
-}
 
 /*
  * Check first token for match with built in commands.
@@ -173,15 +198,32 @@ void deploy_processes(int tokensoffset)
  *
  * Takes pointer to tokens to allow passing only end of list to piped process.
  */
-bool builtinCommand(char** tokens)
-{
-    // TODO: Implement cd?
-    // TODO? Implement more built in?
-    if(!strcmp(tokens[0],"quit")){
-        quit = true;
-        return true;
+    bool builtinCommand(char** tokens)
+    {
+        // TODO: Implement cd?
+        // TODO? Implement more built in?
+        if(!strcmp(tokens[0],"quit")){
+            quit = true;
+            return true;
+        }
+        return false;
     }
-    return false;
+
+void handle_pipe() {
+    if (num_tokens[1]) {
+// Open pipe.
+        int fd[2];
+        pipe(fd);
+        pid_t pid = fork();
+        if (!pid) {
+            // Write to pipe.
+            deploy_processes(0);
+// Child process executes until pipe and writes to it.
+        } else {
+// Wait for child process and reads from pipe.
+            deploy_processes(num_tokens[1]);
+        }
+    }
 }
 
 // TODO: Cleanup function

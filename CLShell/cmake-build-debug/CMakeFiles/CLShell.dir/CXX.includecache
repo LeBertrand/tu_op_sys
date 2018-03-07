@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/J/Documents/Temple University/Operating Systems/CLShell/main.cpp
+cstdio
+-
+cstring
+-
+sys/types.h
+-
+unistd.h
+-
+

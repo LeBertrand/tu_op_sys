@@ -2,7 +2,7 @@
 
 int main()
 {
-    //const char** TPATH = { ".", "shelve/bin", "executables/" };
+    initialize();
     
     /* Check safe cat function
     char* mybuf;
@@ -31,6 +31,10 @@ int main()
     } else {
         puts("No background command.");
     } */
+    
+    // Call eviron and echo functions.
+    char* tokens[10];
+    environ();
 
     return 0;
 }

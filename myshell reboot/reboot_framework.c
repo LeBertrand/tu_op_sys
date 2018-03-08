@@ -4,6 +4,7 @@
 //#include <sys/wait.h>
 #include <unistd.h>
 #include <string.h>
+#include <dirent.h>
 
 typedef enum { false = 0, true = 1 } boolean_t;
 
@@ -11,7 +12,12 @@ typedef enum { false = 0, true = 1 } boolean_t;
 const char LONGESTWORD = 50;
 // User ordered quit?
 boolean_t quit;
-// TODO: Gloabal background flag set by tokenizer, or pass a boolean, or have exec scan for '&'?
+// TODO: Global background flag set by tokenizer, or pass a boolean, or have exec scan for '&'?
+
+// List of strings for PATH variables.
+char** PATH;
+// Path name for current working directory.
+char* wd;
 
 void initialize();
 void findpath();
@@ -39,6 +45,25 @@ boolean_t builtin(char** tokens);
 boolean_t executable(char** tokens);
 boolean_t runbg(char** tokens);
 
+/* *** Built In Functions *** */
+
+/*
+ *  Function: cd
+ *  Input:
+    tokens - array of tokens
+ *  If no arguments are given, print working directory (pwd).
+    Else, change working directory to first argument.
+ *  Return: false if unable to open requested directory, else false.
+
+ *  Note: Can't handle recursive directories, as in "cd ./Testing/bin/debug".
+    Use one level at a time.
+ */
+boolean_t cd(char** tokens);
+
+/*
+ *  Function: ins_hello_world
+ *  Prints Hello World. Used to test deployment of processes.
+ */
 void ins_hello_world();
 
 /*
@@ -54,10 +79,11 @@ boolean_t builtin(char** tokens)
         quit = true;
         return true;
     }
-    else if(strcmp(cmd,"hw")){
-        ins_hello_world();
+    else if(strcmp(cmd,"cd")){
+        cd(tokens);
         return true;
     }
+    return false;
 }
 /*
 boolean_t external(char** tokens)
@@ -97,4 +123,33 @@ void ins_hello_world()
     const char* msg = "Hello World.";
     puts("Entered internal function.");
     puts(msg);
+}
+
+boolean_t cd(char** tokens)
+{
+    if(tokens[1] == void){
+        // No argument. Print current working directory.
+        puts(wd);
+        return true;
+    }
+    // Look for given path.
+
+    // Struct for current directory stream.
+    DIR *curdir;
+    // Struct for finding directory.
+    struct dirent *sd;
+
+    curdir = opendir(".");
+
+    // Read all directories to find match.
+    while( sd=readdir(curdir) ){
+        if( !strcmp(sd->d_name, tokens[1]) ){ // found match
+            strcat(wd, sd->d_name);
+
+            closedir(curdir);
+            return true;
+        }
+    } // Loop ended -- match not present
+    puts("Directory not found.");
+    return false;
 }

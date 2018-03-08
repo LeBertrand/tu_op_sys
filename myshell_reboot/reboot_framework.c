@@ -18,7 +18,8 @@ boolean_t quit;
 
 // List of strings for PATH variables.
 typedef struct {
-    /* TODO: What does it mean not to hardcode paths? Should I do a sys("pwd")?
+    /* TODO: What does it mean not to hardcode paths as stated in 1.i?
+    Should I do a sys("pwd")?
     How am I supposed to get absolute paths to shell or to user's home? */
     char* SHELL;
     char* USER;
@@ -67,10 +68,18 @@ void tokenize(char** tokens, char* inputline);
 void deployprocess(char** tokens);
 
 /*
- *
+ *  Function: builtin
+ *  Check list of built in commands.
+ *  If one matches first token, deploy it as a process.
+ *  Returns: true if matching command deployed, else false.
  */
 boolean_t builtin(char** tokens);
 boolean_t executable(char** tokens);
+
+/*
+ *  Function: runbg
+ *  Check given arguments for ampersand.
+ */
 boolean_t runbg(char** tokens);
 
 /* *** Built In Functions *** */
@@ -123,6 +132,8 @@ void initialize()
     
     addtoPATH("bin");
     env->PATH = paths;
+    
+    env->PARENT = NULL;
     
     // TODO: Other init stuff.
     
@@ -207,11 +218,14 @@ boolean_t runbg(char** tokens)
     // Find last token
     int i = 0;
     char *lastword = tokens[i++], len;
-    while(! lastword[0] == '\0') {
-        lastword = tokens[i++];
-    // Find length of last token
+    while( lastword != NULL ) {
+        // Find length of last token.
         len = strlen(lastword);
+        
+        lastword = tokens[i++];
     }
+    
+    lastword = tokens[i-2];
 
     return (boolean_t) lastword[len-1] == '&';
 }
@@ -255,4 +269,11 @@ boolean_t cd(char** tokens)
     } // Loop ended -- match not present
     puts("Directory not found.");
     return false;
+}
+
+void environ()
+{
+    printf("WD=$s\n", env->wd);
+    printf("PATH=%s\n", env->PATH);
+    printf("PATH=%s\n", env->PARENT);
 }

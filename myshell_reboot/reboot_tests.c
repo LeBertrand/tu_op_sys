@@ -10,10 +10,8 @@ int main()
 
     strcpy(cmd1, "logger.exe");
     strcpy(cmd2, "&");
-    strcpy(cmd3, "\0");
     tokens[0] = cmd1;
     tokens[1] = cmd2;
-    tokens[2] = NULL;
     if(runbg(tokens)){
         puts("Command runs in background.");
     } else {

@@ -8,19 +8,47 @@
 
 typedef enum { false = 0, true = 1 } boolean_t;
 
-/* *** Global Flags *** */
+/* *** Globals *** */
 const char LONGESTWORD = 50;
+const char DIRMAX = 100;
+
 // User ordered quit?
 boolean_t quit;
 // TODO: Global background flag set by tokenizer, or pass a boolean, or have exec scan for '&'?
 
 // List of strings for PATH variables.
-char** PATH;
-// Path name for current working directory.
-char* wd;
+typedef struct {
+    /* TODO: What does it mean not to hardcode paths? Should I do a sys("pwd")?
+    How am I supposed to get absolute paths to shell or to user's home? */
+    char* SHELL;
+    char* USER;
+    char* HOME;
+    char* PATH;
+    // Path name for current working directory.
+    char *wd;
+    int wdlen;
+    
+    // Leave null except when deploying an external with exec.
+    char* PARENT;
+} ENV;
 
+// Global pointer to ENV struct
+ENV *env;
+
+/*
+ *  Function: initialize
+ *  Set up environment struct.
+ */
 void initialize();
-void findpath();
+
+/*
+ *  Searches for dir with given name. If directory is found, add it to PATH.
+    Otherwise, print warning message.
+ *  Inputs:
+    newPath - string holding name of directory to search for
+ *  Return: true if path found and added to PATH, false if path not found.
+ */
+boolean_t addtoPATH(const char* newPath);
 
 /*
  *  Function: tokenize
@@ -72,6 +100,76 @@ int main()
     return 0;
 } */
 
+void initialize()
+{
+    // Setup environment
+    env = (ENV*) malloc(sizeof(ENV));
+    
+    // Make list of paths to search for executables.
+    char* paths = (char*) malloc(100);
+    strcpy(paths, "");
+    strcat(paths,".");
+    
+    // DIR* checkdir;
+    // checkdir = opendir("bin");
+    // if(checkdir == NULL){
+    //     printf("False PATH. Shell can't run.");
+    //     exit(1);
+    // }
+    // else{
+    //     strcat(paths,"bin:");
+    //     closedir(checkdir);
+    // }
+    
+    addtoPATH("bin");
+    env->PATH = paths;
+    
+    // TODO: Other init stuff.
+    
+    //TODO: How am I really supposed to get the absolute path?
+    env->wd = (char*) malloc(DIRMAX);
+    env->wdlen = DIRMAX;
+    strcpy(env->wd, "~/workspace/tu_op_sys/myshell_reboot");
+}
+
+boolean_t safecat(char** dest, const char* addition, int* lenptr)
+{
+    // Get string to copy into.
+    char *oldBuf = *dest;
+    // Check for room. If not enough, allocate new string.
+    while(strlen(addition) + strlen(oldBuf) > *lenptr + 1){
+        // Create new buffer for paths.
+        char* bigbuf = (char*) malloc(*lenptr * 2);
+        if(bigbuf == NULL){
+            return false;
+        }
+        // Record new paths string length.
+        (*lenptr) *= 2;
+        // Transfer contents of old destination string into longer string.
+        strcpy(bigbuf, oldBuf);
+        // Put pointer to big string wherever pointer to old string was.
+        *dest = bigbuf;
+    }
+    // Enough space is allocated.
+    // Copy.
+    strcat(*dest, addition);
+    
+    return true;
+}
+
+boolean_t addtoPATH(const char* newPath)
+{
+    DIR* checkdir;
+    checkdir = opendir(newPath);
+    if(checkdir == NULL){
+        puts("Unable to detect given path.");
+        return false;
+    }
+    closedir(checkdir);
+    safecat(&(env->wd),":",&(env->wdlen));
+    safecat(&(env->wd),newPath,&(env->wdlen));
+}
+
 boolean_t builtin(char** tokens)
 {
     char* cmd = tokens[0];
@@ -108,12 +206,12 @@ boolean_t runbg(char** tokens)
 {
     // Find last token
     int i = 0;
-    char* lastword;
-    do {
-        lastword = *(tokens[i++]);
-    } while(! lastword[0] == '\0');
+    char *lastword = tokens[i++], len;
+    while(! lastword[0] == '\0') {
+        lastword = tokens[i++];
     // Find length of last token
-    char len = strlen(lastword);
+        len = strlen(lastword);
+    }
 
     return (boolean_t) lastword[len-1] == '&';
 }
@@ -127,9 +225,9 @@ void ins_hello_world()
 
 boolean_t cd(char** tokens)
 {
-    if(tokens[1] == void){
+    if(tokens[1] == NULL){
         // No argument. Print current working directory.
-        puts(wd);
+        puts(env->wd);
         return true;
     }
     // Look for given path.
@@ -144,7 +242,12 @@ boolean_t cd(char** tokens)
     // Read all directories to find match.
     while( sd=readdir(curdir) ){
         if( !strcmp(sd->d_name, tokens[1]) ){ // found match
-            strcat(wd, sd->d_name);
+            strcat(env->wd, sd->d_name);
+            
+            // Put '/' at end of wd name so future concatenation works
+            if(env->wd[strlen(env->wd) - 1] != '/'){
+                strcat(env->wd, "/");
+            }
 
             closedir(curdir);
             return true;

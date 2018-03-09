@@ -32,9 +32,8 @@ int main()
         puts("No background command.");
     } */
     
-    // Call eviron and echo functions.
-    char* tokens[10];
-    environ();
+    //environ();
 
+    
     return 0;
 }

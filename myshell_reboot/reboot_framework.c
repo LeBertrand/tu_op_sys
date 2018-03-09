@@ -1,7 +1,5 @@
 #include "reboot_framework.h"
 
-
-/* *** Implementation *** */
 /*
 int main()
 {
@@ -14,9 +12,9 @@ void initialize()
     env = (ENV*) malloc(sizeof(ENV));
     
     // Make list of paths to search for executables.
-    char* paths = (char*) malloc(100);
+    char* paths = (char*) malloc(INITPATHLEN);
     strcpy(paths, "");
-    strcat(paths,".");
+    strcat(paths,"./");
     
     // DIR* checkdir;
     // checkdir = opendir("bin");
@@ -29,8 +27,10 @@ void initialize()
     //     closedir(checkdir);
     // }
     
-    addtoPATH("bin");
+
     env->PATH = paths;
+    env->pathlen = INITPATHLEN;
+    addtoPATH("bin");
     
     env->PARENT = NULL;
     
@@ -38,7 +38,7 @@ void initialize()
     
     //TODO: How am I really supposed to get the absolute path?
     env->wd = (char*) malloc(DIRMAX);
-    env->wdlen = DIRMAX;
+    env->pathlen = DIRMAX;
     strcpy(env->wd, "~/workspace/tu_op_sys/myshell_reboot");
 }
 
@@ -76,8 +76,8 @@ boolean_t addtoPATH(const char* newPath)
         return false;
     }
     closedir(checkdir);
-    safecat(&(env->wd),":",&(env->wdlen));
-    safecat(&(env->wd),newPath,&(env->wdlen));
+    safecat(&(env->PATH),":",&(env->pathlen));
+    safecat(&(env->PATH),newPath,&(env->pathlen));
 }
 
 boolean_t builtin(char** tokens)
@@ -172,7 +172,15 @@ boolean_t cd(char** tokens)
 
 void environ()
 {
-    printf("WD=$s\n", env->wd);
+    printf("WD=%s\n", (env->wd));
     printf("PATH=%s\n", env->PATH);
-    printf("PATH=%s\n", env->PARENT);
+    if( env->PARENT != NULL)
+        printf("PATH=%s\n", (char*) env->PARENT);
+}
+
+void echo(char** tokens){
+    int i;
+    for(i = 0; tokens[i] != NULL; i++){
+        printf(tokens[i]);
+    }
 }

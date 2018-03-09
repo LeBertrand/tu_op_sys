@@ -11,6 +11,7 @@ typedef enum { false = 0, true = 1 } boolean_t;
 /* *** Globals *** */
 const char LONGESTWORD = 50;
 const char DIRMAX = 100;
+const char INITPATHLEN = 100;
 
 // User ordered quit?
 boolean_t quit;
@@ -25,9 +26,9 @@ typedef struct {
     char* USER;
     char* HOME;
     char* PATH;
+    int pathlen;
     // Path name for current working directory.
     char *wd;
-    int wdlen;
     
     // Leave null except when deploying an external with exec.
     char* PARENT;
@@ -105,7 +106,14 @@ void environ();
 
 /*
  *  Function: echo
- *  Print arguments to process's output.
+ *  Input:
+    tokens - array of strings, terminated by NULL pointer
+ *  Print all input to process's output.
+ 
+ *  Notes:
+ *  Doesn't take switches as standard UNIX echo does. Just outputs the
+    exact input.
+ *  Prints all input. Don't send 'echo' as first token.
  */
 void echo(char** tokens);
 

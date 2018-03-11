@@ -56,14 +56,15 @@ int main()
     tokens[1] = NULL;
     cd(tokens); */
     
-    /* clr */
+    /* clr
     puts("Fill the screen with all \nthis text...\n\nhere\nhere");
     char g,h,i,j;
     scanf("%c", &g);
     clr();
     puts("Screen clear.");
-    scanf("%c%c%c%c", &g,&h,&i,&j);
+    scanf("%c%c%c%c", &g,&h,&i,&j); */
     
+    puts(env->SHELL);
     
     return 0;
 }

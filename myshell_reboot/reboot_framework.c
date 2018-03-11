@@ -26,7 +26,14 @@ void initialize()
     //     strcat(paths,"bin:");
     //     closedir(checkdir);
     // }
-    
+    env->SHELL = (char*) malloc(DIRMAX);
+    getcwd(env->SHELL, DIRMAX);
+    if(env->SHELL == NULL){
+        puts("Shell directory name overflows allocated buffer.");
+        exit(1);
+    }
+    // TODO: rename this C file 'myshell'.
+    safecat(&(env->SHELL), "myshell")
 
     env->PATH = paths;
     env->pathlen = INITPATHLEN;

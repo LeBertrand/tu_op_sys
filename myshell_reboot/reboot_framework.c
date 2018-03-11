@@ -138,6 +138,8 @@ void ins_hello_world()
 
 boolean_t cd(char** tokens)
 {
+    
+    puts("Entered cd function.");
     if(tokens[1] == NULL){
         // No argument. Print current working directory.
         puts(env->wd);
@@ -192,9 +194,11 @@ void environ()
         printf("PATH=%s\n", (char*) env->PARENT);
 }
 
+/*
 void echo(char** tokens){
     int i;
     for(i = 0; tokens[i] != NULL; i++){
         printf(tokens[i]);
     }
 }
+*/

@@ -37,21 +37,27 @@ int main()
 
     /* cd */
     
-    const char *cmd2 = "reboot_tests.c.o";
+    char cmd[30], cmd1[30], cmd2[30];
+    
+    strcpy(cmd,"cd");
+    strcpy(cmd1,"cmake-build-debug");
+    strcpy(cmd2,"reboot_tests.c.o");
+    
+    tokens[0] = cmd;
     tokens[1] = cmd2;
-    return 0;
+    cd(tokens);
     
     tokens[1] = NULL;
     cd(tokens);
     
-    const char *cmd = "cd";
-    const char *cmd1 = "cmake-build-debug";
-    tokens[0] = cmd;
+    
     tokens[1] = cmd1;
     cd(tokens);
     
     tokens[1] = NULL;
     cd(tokens);
     
+    
+    return 0;
 }
 

@@ -7,12 +7,18 @@
 #include <string.h>
 #include <dirent.h>
 
+#ifndef BOOL_T
+#define BOOL_T
 typedef enum { false = 0, true = 1 } boolean_t;
+#endif
 
 /* *** Globals *** */
+#ifndef SHELLCONST
+#define SHELLCONST
 const char LONGESTWORD = 50;
 const char DIRMAX = 100;
 const char INITPATHLEN = 100;
+#endif
 
 // User ordered quit? Flag ends main loop.
 boolean_t quit;
@@ -38,6 +44,7 @@ typedef struct {
 // Global pointer to ENV struct
 ENV *env;
 
+
 /*
  *  Function: initialize
  *  Set up environment struct.
@@ -53,13 +60,6 @@ void initialize();
  */
 boolean_t addtoPATH(const char* newPath);
 
-/*
- *  Function: tokenize
- *  Input:  inputline - String read in from standard input
- *  Output: tokens - Array of strings
- *  Break input at spaces and non-alphanumerics. Put words into character array.
- */
-void tokenize(char** tokens, char* inputline);
 
 /*
  *  Function: deployprocess

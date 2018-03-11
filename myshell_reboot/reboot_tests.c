@@ -1,10 +1,13 @@
 #include "reboot_framework.c"
+#include "shell_interface/shell_interface.h"
+#include "shell_interface/tokenize.c"
 
 int main()
 {
-    initialize();
+    //initialize();
     char** tokens = (char**) malloc(4*sizeof(char*));
-    
+    char linein[100];
+    strcpy(linein,"cat fluids | wc -a > calulation.txt | grep \"-v\" ");
     /* Check safe cat function
     char* mybuf;
     int numchars = 16;
@@ -79,7 +82,13 @@ int main()
     
     echo(tokens); */
     
-    dir();
+    //dir();
+    
+    tokenize(tokens, linein);
+    char i;
+    for(i = 0; tokens[i] != NULL; i++){
+        puts(tokens[i]);
+    }
     
     return 0;
 }

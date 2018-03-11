@@ -14,7 +14,7 @@ const char LONGESTWORD = 50;
 const char DIRMAX = 100;
 const char INITPATHLEN = 100;
 
-// User ordered quit?
+// User ordered quit? Flag ends main loop.
 boolean_t quit;
 // TODO: Global background flag set by tokenizer, or pass a boolean, or have exec scan for '&'?
 

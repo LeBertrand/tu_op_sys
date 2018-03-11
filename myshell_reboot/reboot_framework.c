@@ -53,9 +53,9 @@ void initialize()
     
     env->PARENT = NULL;
     
-    // TODO: Other init stuff.
+    // Set quit false.
+    quit = false;
     
-
 }
 
 boolean_t safecat(char** dest, const char* addition, int* lenptr)
@@ -103,10 +103,23 @@ boolean_t builtin(char** tokens)
         quit = true;
         return true;
     }
-    else if(strcmp(cmd,"cd")){
+    else if(!strcmp(cmd,"cd")){
         cd(tokens);
         return true;
     }
+    else if(! strcmp(cmd,"dir")){
+        dir();
+    }
+    else if(! strcmp(cmd, "environ")){
+        environ();
+    }
+    else if(strcmp(cmd, "clr")==0 || strcmp(cmd, "clear")==0 ){
+        clr();
+    }
+    else if( !strcmp(cmd, "echo")){
+        echo(tokens);
+    }
+    
     return false;
 }
 /*

@@ -35,8 +35,7 @@ int main()
     
     //environ();
 
-    /* cd */
-    
+    /* cd
     char cmd[30], cmd1[30], cmd2[30];
     
     strcpy(cmd,"cd");
@@ -55,7 +54,15 @@ int main()
     cd(tokens);
     
     tokens[1] = NULL;
-    cd(tokens);
+    cd(tokens); */
+    
+    /* clr */
+    puts("Fill the screen with all \nthis text...\n\nhere\nhere");
+    char g,h,i,j;
+    scanf("%c", &g);
+    clr();
+    puts("Screen clear.");
+    scanf("%c%c%c%c", &g,&h,&i,&j);
     
     
     return 0;

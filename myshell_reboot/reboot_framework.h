@@ -119,6 +119,12 @@ void environ();
 void echo(char** tokens);
 
 /*
+ *  Function: clr
+ *  Clear terminal.
+ */
+void clr();
+
+/*
  *  Function: ins_hello_world
  *  Prints Hello World. Used to test deployment of processes.
  */

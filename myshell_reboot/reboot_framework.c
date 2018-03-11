@@ -138,8 +138,6 @@ void ins_hello_world()
 
 boolean_t cd(char** tokens)
 {
-    
-    puts("Entered cd function.");
     if(tokens[1] == NULL){
         // No argument. Print current working directory.
         puts(env->wd);
@@ -192,6 +190,11 @@ void environ()
     printf("PATH=%s\n", env->PATH);
     if( env->PARENT != NULL)
         printf("PATH=%s\n", (char*) env->PARENT);
+}
+
+void clr()
+{
+    printf("\33[H\33[2J");
 }
 
 /*

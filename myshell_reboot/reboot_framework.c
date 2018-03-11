@@ -26,16 +26,27 @@ void initialize()
     //     strcat(paths,"bin:");
     //     closedir(checkdir);
     // }
+    
+    // Set SHELL to absolute location of shell executable
     env->SHELL = (char*) malloc(DIRMAX);
     getcwd(env->SHELL, DIRMAX);
+    // If failed to find directory, exit.
     if(env->SHELL == NULL){
         puts("Shell directory name overflows allocated buffer.");
         exit(1);
     }
-    // TODO: rename this C file 'myshell'.
+    // Set working directory.
+    env->wd = (char*) malloc(DIRMAX);
+    strcpy(env->wd,env->SHELL); 
+    // Working directory name ends with '/' for future concatenation.
+    if(env->wd[strlen(env->wd) - 1] != '/'){
+        strcat(env->wd, "/");
+    }
+    // TODO: name executable file 'myshell'.
     int plen = strlen(env->SHELL);
     safecat(&(env->SHELL), "myshell", &plen);
 
+    // Put path string into env struct.
     env->PATH = paths;
     env->pathlen = INITPATHLEN;
     addtoPATH("bin");
@@ -44,10 +55,7 @@ void initialize()
     
     // TODO: Other init stuff.
     
-    //TODO: How am I really supposed to get the absolute path?
-    env->wd = (char*) malloc(DIRMAX);
-    env->pathlen = DIRMAX;
-    strcpy(env->wd, "~/workspace/tu_op_sys/myshell_reboot");
+
 }
 
 boolean_t safecat(char** dest, const char* addition, int* lenptr)
@@ -190,6 +198,31 @@ boolean_t cd(char** tokens)
     } // Loop ended -- match not present
     puts("Directory not found.");
     return false;
+}
+
+void dir(){
+    // Struct stores Directory.
+    DIR *curdir;
+    // Struct represents last entry read from current directory.
+    struct dirent *sd;
+    // Struct represents information about sd.
+    struct stat curstat;
+
+    // Open current directory.
+    curdir = opendir(env->wd);
+
+    if(curdir == NULL){
+        puts("Failed to open directory.");
+        exit(1);
+    }
+    
+    while( sd=readdir(curdir)){
+        stat(sd->d_name, &curstat);
+        if(S_ISDIR(curstat.st_mode))
+            printf("Folder -- %s...\n", sd->d_name);
+        else
+            printf("Entry -- %s...\n", sd->d_name);
+    }
 }
 
 void environ()

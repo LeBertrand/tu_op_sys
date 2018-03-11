@@ -66,7 +66,7 @@ int main()
     
     //puts(env->SHELL);
     
-    /* echo */
+    /* echo
     char cmd[30], cmd1[30], cmd2[30];
     
     strcpy(cmd,"echo");
@@ -77,7 +77,9 @@ int main()
     tokens[2] = cmd1;
     tokens[1] = cmd2;
     
-    echo(tokens);
+    echo(tokens); */
+    
+    dir();
     
     return 0;
 }

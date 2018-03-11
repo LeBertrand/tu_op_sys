@@ -102,6 +102,12 @@ boolean_t safecat(char** dest, const char* addition, int* lenptr);
 boolean_t cd(char** tokens);
 
 /*
+ *  Function: dir
+ *  Lists all contents of current directory.
+ */
+void dir();
+
+/*
  *  Function: environ
  *  Print list of environment variables to process's output.
  */

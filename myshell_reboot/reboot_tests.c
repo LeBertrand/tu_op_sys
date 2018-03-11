@@ -3,6 +3,7 @@
 int main()
 {
     initialize();
+    char** tokens = (char**) malloc(4*sizeof(char*));
     
     /* Check safe cat function
     char* mybuf;
@@ -34,6 +35,23 @@ int main()
     
     //environ();
 
+    /* cd */
     
+    const char *cmd2 = "reboot_tests.c.o";
+    tokens[1] = cmd2;
     return 0;
+    
+    tokens[1] = NULL;
+    cd(tokens);
+    
+    const char *cmd = "cd";
+    const char *cmd1 = "cmake-build-debug";
+    tokens[0] = cmd;
+    tokens[1] = cmd1;
+    cd(tokens);
+    
+    tokens[1] = NULL;
+    cd(tokens);
+    
 }
+

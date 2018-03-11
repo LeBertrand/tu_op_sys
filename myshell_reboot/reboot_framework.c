@@ -149,12 +149,26 @@ boolean_t cd(char** tokens)
     DIR *curdir;
     // Struct for finding directory.
     struct dirent *sd;
+    // Struct for checking state -- and type -- of entry
+    struct stat entstate;
 
     curdir = opendir(".");
+    //puts("Searching current directory.");
 
     // Read all directories to find match.
     while( sd=readdir(curdir) ){
+        // Check the state of this entry
+        stat(sd->d_name, &entstate);
+        
+        
+        //printf("Found directory %s. Comparing to %s.\n", sd->d_name, tokens[1]);
         if( !strcmp(sd->d_name, tokens[1]) ){ // found match
+        
+            // Check if match is a directory
+            if(!S_ISDIR(entstate.st_mode)){
+                printf("Can't enter %s -- not a directory.\n", sd->d_name);
+                return false;
+            }
             strcat(env->wd, sd->d_name);
             
             // Put '/' at end of wd name so future concatenation works

@@ -64,7 +64,20 @@ int main()
     puts("Screen clear.");
     scanf("%c%c%c%c", &g,&h,&i,&j); */
     
-    puts(env->SHELL);
+    //puts(env->SHELL);
+    
+    /* echo */
+    char cmd[30], cmd1[30], cmd2[30];
+    
+    strcpy(cmd,"echo");
+    strcpy(cmd1,"cmake-build-debug");
+    strcpy(cmd2,"reboot_tests.c.o");
+    
+    tokens[0] = cmd;
+    tokens[2] = cmd1;
+    tokens[1] = cmd2;
+    
+    echo(tokens);
     
     return 0;
 }

@@ -33,7 +33,8 @@ void initialize()
         exit(1);
     }
     // TODO: rename this C file 'myshell'.
-    safecat(&(env->SHELL), "myshell")
+    int plen = strlen(env->SHELL);
+    safecat(&(env->SHELL), "myshell", &plen);
 
     env->PATH = paths;
     env->pathlen = INITPATHLEN;
@@ -204,11 +205,9 @@ void clr()
     printf("\33[H\33[2J");
 }
 
-/*
 void echo(char** tokens){
     int i;
-    for(i = 0; tokens[i] != NULL; i++){
-        printf(tokens[i]);
+    for(i = 1; tokens[i] != NULL; i++){
+        printf("%s ", tokens[i]);
     }
 }
-*/

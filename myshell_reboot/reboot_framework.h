@@ -84,6 +84,8 @@ boolean_t executable(char** tokens);
  */
 boolean_t runbg(char** tokens);
 
+boolean_t safecat(char** dest, const char* addition, int* lenptr);
+
 /* *** Built In Functions *** */
 
 /*
@@ -114,7 +116,7 @@ void environ();
  *  Notes:
  *  Doesn't take switches as standard UNIX echo does. Just outputs the
     exact input.
- *  Prints all input. Don't send 'echo' as first token.
+ *  Prints all tokens after the first, seperated by spaces.
  */
 void echo(char** tokens);
 

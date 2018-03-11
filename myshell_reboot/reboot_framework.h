@@ -18,6 +18,8 @@ typedef enum { false = 0, true = 1 } boolean_t;
 const char LONGESTWORD = 50;
 const char DIRMAX = 100;
 const char INITPATHLEN = 100;
+const char INPUT_MAX = 100;
+const char WORDS_MAX = 20;
 #endif
 
 // User ordered quit? Flag ends main loop.

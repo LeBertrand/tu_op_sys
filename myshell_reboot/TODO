@@ -3,7 +3,14 @@ looping, how do functions communicate that a command has been found? Some functi
 maybe handle command in my shell needs to have a if-else stack that functions can
 fall through.
 
-Left off at writing new_cmd_process in myshell. Need to implement, test, call in
-handle_command.
+Some of new_cmd_process in myshell is written. Begins with block for creating
+detecting and handling pipe. The rest is a base case which can only be reached
+with a pipe by calling recursively.
+Wrote redirect in but not out. Wrote builtin function.
+Calls a non-existent external function if builtin returns false.
+
+Builtins need testing, but they're all coded all the way through.
+
+Before creating new process, check if process should work in background.
 
 Batch file execution of shell.

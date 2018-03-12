@@ -128,43 +128,52 @@ boolean_t builtin(char** tokens)
         quit = true;
         return true;
     }
+    // cd for change dir is implemented much higher up. This is just pwd.
     else if(!strcmp(cmd,"cd")){
-        cd(tokens);
+        puts(env->wd);
         return true;
     }
     else if(! strcmp(cmd,"dir")){
         dir();
+        return true;
     }
     else if(! strcmp(cmd, "environ")){
         environ();
+        return true;
     }
     else if(strcmp(cmd, "clr")==0 || strcmp(cmd, "clear")==0 ){
         clr();
+        return true;
     }
     else if( !strcmp(cmd, "echo")){
         echo(tokens);
+        return true;
     }
     
+    // Out of built in commands to try. cmd isn't on the list.
     return false;
 }
-/*
+
 boolean_t external(char** tokens)
 {
-    pid_t pid = fork();
-
-    boolean_t bg = runbg(tokens);
-
-    if(pid == 0){
-        char cmd[LONGESTWORD];
-        strcpy(cmd, "./");
-        strcat(cmd, tokens[0]);
-        execl(cmd, tokens[0], &tokens[1]);
+    // Try to find executable.
+    char *cmd = tokens[0];
+    char workingpath[DIRMAX + strlen(cmd) + 1];
+    DIR *curdir;
+    struct dirent *sd;
+    curdir = opendir(workingpath);
+    // Read all entries in working directory looking for cmd.
+    strcpy(workingpath, env->wd);
+    strcat(workingpath, "/");
+    while( sd=readdir(curdir) ){
+        if( !strcmp(sd->d_name, cmd) ){
+            execv(cmd, tokens);
+        }
     }
-    else{
-        if(!bg) waitpid(pid,NULL,NULL);
-    }
+    // @postcondition: Couldn't find program in current wd.
+    
     return true;
-} */
+}
 
 boolean_t runbg(char** tokens)
 {

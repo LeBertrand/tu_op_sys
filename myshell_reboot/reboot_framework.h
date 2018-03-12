@@ -20,6 +20,9 @@ const char DIRMAX = 100;
 const char INITPATHLEN = 100;
 const char INPUT_MAX = 100;
 const char WORDS_MAX = 20;
+const char READ = 0;
+const char WRITE = 1;
+
 #endif
 
 // User ordered quit? Flag ends main loop.
@@ -64,7 +67,8 @@ boolean_t addtoPATH(const char* newPath);
 
 
 /*
- *  DEPREC: Declaration only preserved to allow git resets of old code
+ *  DEPREC: Declaration only preserved to allow git resets of old code. Use
+            functions described in shell_interface.h.
  *  Function: deployprocess
  *  Input:  tokens - Array of strings holding input commands and arguments
  *  Check if command is built in and call correct function. If command isn't
@@ -77,9 +81,20 @@ void deployprocess(char** tokens);
  *  Check list of built in commands.
  *  If one matches first token, deploy it as a process.
  *  Returns: true if matching command deployed, else false.
+ 
+ *  Note: Don't use directly. This function requires 'babysitting' from
+ *  new_cmd_process.
  */
 boolean_t builtin(char** tokens);
-boolean_t executable(char** tokens);
+
+/*
+ *  Function: external
+ *  Search path for executable file match name of first token.
+ *  Execute file.
+ *  Note: Don't call directly. Function doesn't create new process. Call
+ *  indirectly with new_cmd_process.
+ */
+boolean_t external(char** tokens);
 
 /*
  *  Function: runbg

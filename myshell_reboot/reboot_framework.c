@@ -83,6 +83,15 @@ boolean_t safecat(char** dest, const char* addition, int* lenptr)
     return true;
 }
 
+void flush_tokens(char** tokens)
+{
+    char stringsfreed;
+    for(stringsfreed = 0; tokens[stringsfreed] == NULL; stringsfreed++){
+        free(tokens[stringsfreed]);
+        tokens[stringsfreed] = NULL;
+    }
+}
+
 boolean_t addtoPATH(const char* newPath)
 {
     DIR* checkdir;
@@ -191,7 +200,7 @@ boolean_t cd(char** tokens)
         
         
         //printf("Found directory %s. Comparing to %s.\n", sd->d_name, tokens[1]);
-        if( !strcmp(sd->d_name, tokens[1]) ){ // found match
+        if(    !strncmp(sd->d_name, tokens[1], strlen(sd->d_name)  ) ){ // found match
         
             // Check if match is a directory
             if(!S_ISDIR(entstate.st_mode)){

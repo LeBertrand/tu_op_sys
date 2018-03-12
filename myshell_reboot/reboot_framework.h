@@ -86,7 +86,22 @@ boolean_t executable(char** tokens);
  */
 boolean_t runbg(char** tokens);
 
+/*
+ *  Function: safecat
+ *  Safer version of strcat. Takes pointer to location of destination pointer and
+ *  allocates larger array if needed.
+ *  Input:
+    dest - pointer to location of destination string
+    addition - string to concatenate onto string at dest
+    lenptr - pointer to variable storing length of dest string.
+ */
 boolean_t safecat(char** dest, const char* addition, int* lenptr);
+
+/*
+ *  Function: flush_tokens
+ *  Free space allocated to all strings in array.
+ */
+void flush_tokens(char**);
 
 /* *** Built In Functions *** */
 

@@ -1,0 +1,9 @@
+If stack of function all send back boolean_t to indicate whether to continue
+looping, how do functions communicate that a command has been found? Some function,
+maybe handle command in my shell needs to have a if-else stack that functions can
+fall through.
+
+Left off at writing new_cmd_process in myshell. Need to implement, test, call in
+handle_command.
+
+Batch file execution of shell.

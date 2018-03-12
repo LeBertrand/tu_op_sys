@@ -64,6 +64,7 @@ boolean_t addtoPATH(const char* newPath);
 
 
 /*
+ *  DEPREC: Declaration only preserved to allow git resets of old code
  *  Function: deployprocess
  *  Input:  tokens - Array of strings holding input commands and arguments
  *  Check if command is built in and call correct function. If command isn't

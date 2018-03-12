@@ -83,6 +83,22 @@ boolean_t safecat(char** dest, const char* addition, int* lenptr)
     return true;
 }
 
+void trim_after_last(char* str, char delim)
+{
+    
+    
+    char index, last = -1;
+    for(index = 0; str[index] != '\0'; index++){
+        if(str[index]==delim){
+            last = index;
+        }
+    }
+    if(last >= 0){
+        str[last] = '\0';
+    }
+    
+}
+
 void flush_tokens(char** tokens)
 {
     char stringsfreed;
@@ -181,6 +197,12 @@ boolean_t cd(char** tokens)
         puts(env->wd);
         return true;
     }
+    // Check for directory path exceeds system max
+    if(strlen(env->wd) + strlen(tokens[1]) > DIRMAX){
+        puts("Exceeded maximum length of directory name.");
+        return false;
+    }
+    
     // Look for given path.
 
     // Struct for current directory stream.
@@ -189,37 +211,76 @@ boolean_t cd(char** tokens)
     struct dirent *sd;
     // Struct for checking state -- and type -- of entry
     struct stat entstate;
-
-    curdir = opendir(".");
-    //puts("Searching current directory.");
-
-    // Read all directories to find match.
-    while( sd=readdir(curdir) ){
-        // Check the state of this entry
-        stat(sd->d_name, &entstate);
-        
-        
-        //printf("Found directory %s. Comparing to %s.\n", sd->d_name, tokens[1]);
-        if(    !strncmp(sd->d_name, tokens[1], strlen(sd->d_name)  ) ){ // found match
-        
-            // Check if match is a directory
-            if(!S_ISDIR(entstate.st_mode)){
-                printf("Can't enter %s -- not a directory.\n", sd->d_name);
-                return false;
-            }
-            strcat(env->wd, sd->d_name);
-            
-            // Put '/' at end of wd name so future concatenation works
-            if(env->wd[strlen(env->wd) - 1] != '/'){
-                strcat(env->wd, "/");
-            }
-
-            closedir(curdir);
-            return true;
+    // Construct string holding abs path to target directory.
+    char targetDir[DIRMAX];
+    strcpy(targetDir, env->wd);
+    strcat(targetDir, tokens[1]);
+    // Try to open target.
+    curdir = opendir(targetDir);
+    if(curdir == NULL ){
+        puts("Failed to navigate to directory.");
+        return false;
+    }
+    strcpy(env->wd, targetDir);
+    return true;
+    
+    /* TODO: see following for trimming, so .. navigation shortens string.
+    // Navigate up the tree.
+    if(strcmp(tokens[1], "..")==0){
+        curdir = opendir("..");
+        if(curdir == NULL){
+            // Navigation fails -- likely permissions error.
+            puts("Can't navigate farther up.");
+            return false;
         }
-    } // Loop ended -- match not present
+        // Navigated one folder up. Change path and continue command.
+        trim_after_last(env-wd, '/');
+        // If command wasn't just 'move one up', continue it.
+        if(tokens[1][2] != '\0'){
+            char minIndex;
+            for(minIndex = 0; tokens[1][minIndex] != '\0'; minIndex++){
+                // Shift characters to lose first three: '../'
+                tokens[1][minIndex] = tokens[1][minIndex + 3];
+            }
+            // Path is now 
+            cd(tokens);
+        }
+        
+        // Success. Close directory and return true.
+        closedir(curdir);
+        return true;
+    } else { // Navigating farther down directory tree.
+        curdir = opendir(".");
+        //puts("Searching current directory.");
+
+        // Read all directories to find match.
+        while( sd=readdir(curdir) ){
+            // Check the state of this entry
+            stat(sd->d_name, &entstate);
+            
+            
+            //printf("Found directory %s. Comparing to %s.\n", sd->d_name, tokens[1]);
+            if(    !strncmp(sd->d_name, tokens[1], strlen(sd->d_name)  ) ){ // found match
+            
+                // Check if match is a directory
+                if(!S_ISDIR(entstate.st_mode)){
+                    printf("Can't enter %s -- not a directory.\n", sd->d_name);
+                    return false;
+                }
+                strcat(env->wd, sd->d_name);
+                
+                // Put '/' at end of wd name so future concatenation works
+                if(env->wd[strlen(env->wd) - 1] != '/'){
+                    strcat(env->wd, "/");
+                }
+    
+                closedir(curdir);
+                return true;
+            }
+        } // Loop ended -- match not present
     puts("Directory not found.");
     return false;
+    } */
 }
 
 void dir(){

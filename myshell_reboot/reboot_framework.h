@@ -98,6 +98,17 @@ boolean_t runbg(char** tokens);
 boolean_t safecat(char** dest, const char* addition, int* lenptr);
 
 /*
+ *  Function: trim_after_last
+ *  Modifies str by trimming everything after last occurence of delim, unless
+ *  delim isn't in str. In that case, no change is made.
+ *  Input:
+    delim - character whose last occurrence indicates place to trim.
+    Output:
+    str - string to trim
+ */
+void trim_after_last(char* str, char delim);
+
+/*
  *  Function: flush_tokens
  *  Free space allocated to all strings in array.
  */

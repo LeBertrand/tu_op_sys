@@ -132,15 +132,24 @@ boolean_t new_cmd_process(char** tokens)
         break;
     }
     if(redirectin > -1){
-        FILE* newIn = freopen(tokens[redirectin], "r", stdout);
-        // TODO: Reset stdin.
+        FILE* newIn = freopen(tokens[redirectin], "r", stdin);
+    }
+    
+    // Find redirect out. Search from [1], to skip case where first token is '>'.
+    char redirectout = -1;
+    for(index = 1; tokens[index] != NULL; index++){
+        if( ! strcmp(tokens[index], "<") ) redirectout = ++index;
+        break;
+    }
+    if(redirectout > -1){
+        FILE* newIn = freopen(tokens[redirectout], "r", stdout);
     }
     
     pid_t pid = fork();
     // Execute in child process to preserve current process.
     if( !pid ) {
         // Child process calls first function.
-        fprintf(stdout, "Entered only executing Child Process.\n" );
+        // fprintf(stdout, "Entered only executing Child Process.\n" );
         if(!builtin(tokens)){
             external(tokens);
             puts("Unable to execute command.");

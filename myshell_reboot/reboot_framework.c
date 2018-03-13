@@ -130,7 +130,7 @@ boolean_t builtin(char** tokens)
     }
     // cd for change dir is implemented much higher up. This is just pwd.
     else if(!strcmp(cmd,"cd")){
-        puts(env->wd);
+        cd(tokens);
         return true;
     }
     else if(! strcmp(cmd,"dir")){
@@ -213,7 +213,9 @@ void ins_hello_world()
 
 boolean_t cd(char** tokens)
 {
+    // puts("Entered actual cd function."); /* DBRL */
     if(tokens[1] == NULL){
+        // puts("Never got args."); /* DBRL */
         // No argument. Print current working directory.
         puts(env->wd);
         return true;
@@ -233,9 +235,13 @@ boolean_t cd(char** tokens)
     // Struct for checking state -- and type -- of entry
     struct stat entstate;
     
+    // puts("Should now enter 'cd ..' block"); /* DBRL */
+    
     // TODO: see following for trimming, so .. navigation shortens string.
     // Navigate up the tree.
     if(strcmp(tokens[1], "..")==0 || strcmp(tokens[1], "../")==0 ){
+        
+        // puts("Hit cd .. section."); /* DBRL */
         curdir = opendir("..");
         if(curdir == NULL){
             // Navigation fails -- likely permissions error.
@@ -243,8 +249,12 @@ boolean_t cd(char** tokens)
             return false;
         }
         // Navigated one folder up. {{Change path and continue command.}}
+        // If wd has trailing /, trim that before actually moving up.
+        if(env->wd[ strlen(env->wd) -1 ] == '/') trim_after_last(env->wd, '/');
+        // Following trim represents actual move up.
         trim_after_last(env->wd, '/');
         closedir(curdir);
+        // printf("Changed wd to {{%s}}\n", env->wd); /* DBRL */
         return true;
         
         /*
@@ -263,8 +273,10 @@ boolean_t cd(char** tokens)
     }
     // Construct string holding abs path to target directory.
     char targetDir[DIRMAX];
-    strcpy(targetDir, "/");
-    strcat(targetDir, env->wd);
+    strcpy(targetDir, env->wd);
+    if( targetDir[ strlen(targetDir) - 1 ] != '/' ){
+        strcat(targetDir, "/");
+    }
     strcat(targetDir, tokens[1]);
     // Try to open target.
     curdir = opendir(targetDir);

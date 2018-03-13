@@ -5,9 +5,7 @@ char** tokens;
 
 int main()
 {
-    // Store system in and out defaults to allow later reset.
-    uni_stdin = dup(0);
-    uni_stdout = dup(1);
+    
 
     initialize();
     // Allocate buffer for user input.
@@ -31,6 +29,10 @@ int main()
 
 boolean_t loop(char* inputbuf)
 {
+    // Store system in and out defaults to allow later reset.
+    uni_stdin = dup(0);
+    uni_stdout = dup(1);
+    
     // Flush stdin so next get only gets new user input.
     fflush(stdin);
     // Reset tokens
@@ -42,6 +44,11 @@ boolean_t loop(char* inputbuf)
     
     // Break line of input into tokens in string array.
     tokenize(tokens, inputbuf);
+    
+    // Reset standard in and out.
+    fclose(stdin);
+    stdin = uni_stdin;
+    stdout = uni_stdout;
     
     FILE* runlog = fopen("runlog", "a");
     fprintf(runlog, "Back in main loop.\n");
@@ -63,12 +70,18 @@ boolean_t handle_command(char** cmdtokens)
         strncmp(cmdtokens[0], "quit ", strlen(cmdtokens[0]))==0){
         return false;
     } 
+    // Ugly bit: cd directly--no fork.
     if( strncmp(cmdtokens[0], "cd", strlen(cmdtokens[0]) )==0 ||
         strncmp(cmdtokens[0], "cd ", strlen(cmdtokens[0]) )==0 ) {
+            
+        // printf("handle_command function reached cd block with cmd %s\n", cmdtokens[0]); /* DBRL */
         // cd works in parent process only when changing directory.
-        if(tokens[1] != NULL) cd(tokens);
-        return true;
+        if(cmdtokens[1] != NULL) {
+            new_cmd_process(cmdtokens);
+            return true;
+        }
     } 
+    
     // TODO: Put fork back here, so runbg is check and controls flow.
     new_cmd_process(tokens);
     
@@ -152,11 +165,14 @@ boolean_t new_cmd_process(char** tokens)
     // Find redirect in. Search from [1], to skip case where first token is '<'.
     int redirectin = -1;
     for(index = 1; tokens[index] != NULL; index++){
-        if( ! strcmp(tokens[index], "<") ) redirectin = ++index;
-        break;
+        if( ! strcmp(tokens[index], "<") ) {
+            redirectin = ++index;
+            break;
+        }
     }
     if(redirectin > -1){
         FILE* newIn = freopen(tokens[redirectin], "r", stdin);
+        
         char buf[1000];
         // Get input from source.
         fgets(buf, 1000, newIn);
@@ -164,7 +180,7 @@ boolean_t new_cmd_process(char** tokens)
         
         new_cmd_process(tokens);
         
-        exit(0);
+        return true;
     }
     
     // Find redirect out. Search from [1], to skip case where first token is '>'.
@@ -181,30 +197,32 @@ boolean_t new_cmd_process(char** tokens)
     }
     if(redirectout > -1){
         FILE* newOut = freopen(tokens[redirectout], modestr, stdout);
+        // dup2(*newOut, WRITE);
+        puts("Reset out."); /*DBRL*/
     }
     
-    pid_t pid = fork();
+    //pid_t pid = fork(); Don't fork here--fork in handle_command
     // Execute in child process to preserve current process.
-    if( !pid ) {
-        // Child process calls first function.
-        // fprintf(stdout, "Entered only executing Child Process.\n" );
-        if(!builtin(tokens)){
-            // puts("Builtin came back false. Trying external.");
-            external(tokens);
-            puts("Unable to execute command.");
-        }
-        FILE* runlog = fopen( "runlog", "a");
-        fprintf(runlog, "Finished builtin-external-default. Reaching exit.\n");
-        fprintf(runlog, "Proc - %d\n", getpid());
-        fclose(runlog);
-        exit(0);
+    // Child process calls first function.
+    // fprintf(stdout, "Entered only executing Child Process.\n" );
+    if(!builtin(tokens)){
+        // puts("Builtin came back false. Trying external.");
+        external(tokens);
+        puts("Unable to execute command.");
     }
-    // Parent wait for builtin or extern to return.
-    waitpid(pid, 0, 0);
-    FILE* runlog = fopen("runlog", "a");
-    fprintf(runlog, "Exited forked process in new_cmd_process. Returning true.\n");
-    fprintf(runlog, "Proc - %d\n", getpid());
-    fclose(runlog);
+    
+    // FILE* runlog = fopen( "runlog", "a"); /* DBRL */
+    // fprintf(runlog, "Finished builtin-external-default. Reaching exit.\n"); /* DBRL */
+    // fprintf(runlog, "Proc - %d\n", getpid()); /* DBRL */
+    // fclose(runlog); /* DBRL */
+    // exit(0);
+
+    // // Parent wait for builtin or extern to return.
+    // // waitpid(pid, 0, 0);
+    // FILE* runlog = fopen("runlog", "a"); /* DBRL */
+    // fprintf(runlog, "Exited forked process in new_cmd_process. Returning true.\n"); /* DBRL */
+    // fprintf(runlog, "Proc - %d\n", getpid()); /* DBRL */
+    // fclose(runlog); /* DBRL */ 
     return true;
 }
 

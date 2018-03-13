@@ -220,9 +220,39 @@ boolean_t cd(char** tokens)
     struct dirent *sd;
     // Struct for checking state -- and type -- of entry
     struct stat entstate;
+    
+    // TODO: see following for trimming, so .. navigation shortens string.
+    // Navigate up the tree.
+    if(strcmp(tokens[1], "..")==0 || strcmp(tokens[1], "../")==0 ){
+        curdir = opendir("..");
+        if(curdir == NULL){
+            // Navigation fails -- likely permissions error.
+            puts("Can't navigate farther up.");
+            return false;
+        }
+        // Navigated one folder up. {{Change path and continue command.}}
+        trim_after_last(env->wd, '/');
+        closedir(curdir);
+        return true;
+        
+        /*
+        // If command wasn't just 'move one up', continue it.
+        if(tokens[1][2] != '\0'){
+            char minIndex;
+            for(minIndex = 0; tokens[1][minIndex] != '\0'; minIndex++){
+                // Shift characters to lose first three: '../'
+                tokens[1][minIndex] = tokens[1][minIndex + 3];
+            }
+            
+            // Path is now 
+            return cd(tokens);
+        } 
+        */
+    }
     // Construct string holding abs path to target directory.
     char targetDir[DIRMAX];
-    strcpy(targetDir, env->wd);
+    strcpy(targetDir, "/");
+    strcat(targetDir, env->wd);
     strcat(targetDir, tokens[1]);
     // Try to open target.
     curdir = opendir(targetDir);
@@ -231,34 +261,12 @@ boolean_t cd(char** tokens)
         return false;
     }
     strcpy(env->wd, targetDir);
+
+    // Success. Close directory and return true.
+    closedir(curdir);
     return true;
     
-    /* TODO: see following for trimming, so .. navigation shortens string.
-    // Navigate up the tree.
-    if(strcmp(tokens[1], "..")==0){
-        curdir = opendir("..");
-        if(curdir == NULL){
-            // Navigation fails -- likely permissions error.
-            puts("Can't navigate farther up.");
-            return false;
-        }
-        // Navigated one folder up. Change path and continue command.
-        trim_after_last(env-wd, '/');
-        // If command wasn't just 'move one up', continue it.
-        if(tokens[1][2] != '\0'){
-            char minIndex;
-            for(minIndex = 0; tokens[1][minIndex] != '\0'; minIndex++){
-                // Shift characters to lose first three: '../'
-                tokens[1][minIndex] = tokens[1][minIndex + 3];
-            }
-            // Path is now 
-            cd(tokens);
-        }
-        
-        // Success. Close directory and return true.
-        closedir(curdir);
-        return true;
-    } else { // Navigating farther down directory tree.
+    /* else { // Navigating farther down directory tree.
         curdir = opendir(".");
         //puts("Searching current directory.");
 
@@ -290,6 +298,7 @@ boolean_t cd(char** tokens)
     puts("Directory not found.");
     return false;
     } */
+    
 }
 
 void dir(){

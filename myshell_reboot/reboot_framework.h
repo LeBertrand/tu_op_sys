@@ -138,7 +138,7 @@ void flush_tokens(char**);
     tokens - array of tokens
  *  If no arguments are given, print working directory (pwd).
     Else, change working directory to first argument.
- *  Return: false if unable to open requested directory, else false.
+ *  Return: false if unable to open requested directory, else true.
 
  *  Note: Can't handle recursive directories, as in "cd ./Testing/bin/debug".
     Use one level at a time.

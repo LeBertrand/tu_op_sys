@@ -1,0 +1,19 @@
+
+cd
+
+cd
+
+cd ..
+
+dir
+
+cd myshell_reboot
+
+dir
+
+environ
+
+environ > file.txt
+
+cd < cdpath
+

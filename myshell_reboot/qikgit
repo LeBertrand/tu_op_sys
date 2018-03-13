@@ -1,13 +1,12 @@
 #!/bin/bash
 
 if [ "$1" == "" ]; then
-    echo "Provie comment for commit."
+    echo "Provide comment for commit."
     return 1
 fi
     
-git add reboot_framework.h reboot_framework.c reboot_tests.c qikgit TODO
+git add reboot_framework.h reboot_framework.c reboot_tests.c shell_interface/* myshell.c TODO ENDTESTS
 git commit -m "$1"
 git push
-saints.fanatic@yahoo.com
 
 return 0

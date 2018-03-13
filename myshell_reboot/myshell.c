@@ -3,7 +3,7 @@
 
 char** tokens;
 
-int main()
+int main(int argc, char* argv[])
 {
     
 
@@ -18,13 +18,46 @@ int main()
         exit(1);
     }
     
-    // Loop until loop returns false.
+    // Loop until loop returns false. If batchfile was given, loop on it.
+    if(argc > 1){
+        while(batchloop(inputbuf, argv[1]));
+    }
+    // No batchfile. Loop on terminal input.
     while(loop(inputbuf));
     
     // Free all allocated space.
     free(inputbuf);
     flush_tokens(tokens);
     free(tokens);
+}
+
+boolean_t batchloop(char* inputbuf, char* batchfile)
+{
+    // Save standard output.
+    uni_stdout = dup(1);
+    // Set in to read from batchfile.
+    FILE *defaultin = fopen(batchfile);
+    // If can't read batchfile, quit.
+    if(defaultin == NULL){
+        puts("Can't read batchfile.");
+        return false;
+    }
+    // Prepare tokens array.
+    flush_tokens(tokens);
+    // Print prompt.
+    printf("%s >> ", env->wd);
+    // Read in line of input.
+    fgets(inputbuf, INPUT_MAX, defaultin);
+    // Break line of input into tokens in string array.
+    tokenize(tokens, inputbuf);
+    /* Call command and hold return.
+    Return yes (continue) until hitting quit or exit or running out of input. */
+    boolean_t again = handle_command(tokens) && !feof(defaultin);
+    
+    // Clean up.
+    fclose(defaultin);
+    
+    return again;
 }
 
 boolean_t loop(char* inputbuf)

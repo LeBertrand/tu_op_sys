@@ -33,6 +33,8 @@ void tokenize(char** tokens, char* inputline);
  */
  boolean_t loop(char* inputbuf);
  
+ boolean_t batchloop(char* input, char* batchfile);
+ 
  /*
   * Function: handle_command
   * Read through tokens and deploy correct processes.

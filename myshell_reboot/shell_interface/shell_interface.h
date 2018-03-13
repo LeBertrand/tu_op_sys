@@ -11,6 +11,9 @@ const char INITPATHLEN = 100;
 const char WORDS_MAX = 20;
 #endif
 
+static int uni_stdin;
+static int uni_stdout;
+
 /*
  *  Function: tokenize
  *  Input:  inputline - String read in from standard input

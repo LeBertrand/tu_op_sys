@@ -161,18 +161,30 @@ boolean_t external(char** tokens)
     char workingpath[DIRMAX + strlen(cmd) + 1];
     DIR *curdir;
     struct dirent *sd;
-    curdir = opendir(workingpath);
+    
     // Read all entries in working directory looking for cmd.
     strcpy(workingpath, env->wd);
-    strcat(workingpath, "/");
+    if( workingpath[ strlen(workingpath) -1 ] != '/'){
+        strcat(workingpath, "/");
+    }
+    
+    curdir = opendir(workingpath);
+    
+    // puts("About to check each entry."); /* DBRL */
     while( sd=readdir(curdir) ){
         if( !strcmp(sd->d_name, cmd) ){
+            // printf("Found match - %s", sd->d_name); /* DBRL */
             execv(cmd, tokens);
         }
+        // else printf("Found entry that doesn't match: %s\n", sd->d_name);
     }
     // @postcondition: Couldn't find program in current wd.
     
-    return true;
+    // TODO: token through PATH and try each directory.
+    
+    // puts("Read all entries. None match. external returns false."); /* DBRL */
+    
+    return false;
 }
 
 boolean_t runbg(char** tokens)
@@ -320,9 +332,9 @@ void dir(){
     while( sd=readdir(curdir)){
         stat(sd->d_name, &curstat);
         if(S_ISDIR(curstat.st_mode))
-            printf("Folder -- %s...\n", sd->d_name);
+            printf("Folder -- %s\n", sd->d_name);
         else
-            printf("Entry -- %s...\n", sd->d_name);
+            printf("Entry -- %s\n", sd->d_name);
     }
 }
 
@@ -344,4 +356,5 @@ void echo(char** tokens){
     for(i = 1; tokens[i] != NULL; i++){
         printf("%s ", tokens[i]);
     }
+    puts("");
 }

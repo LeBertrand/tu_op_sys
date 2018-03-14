@@ -137,8 +137,9 @@ boolean_t handle_command(char** cmdtokens)
         exit(0);
     }
     
-    //if( ! runbg(tokens) ) 
-    waitpid(cmdpid, 0, 0);
+    if( ! runbg(tokens) ) {
+        waitpid(cmdpid, 0, 0);
+    }
     
     FILE* runlog = fopen("runlog", "a");
     fprintf(runlog, "Back to parent process, returning to loop.\n");

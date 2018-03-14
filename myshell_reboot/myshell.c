@@ -5,7 +5,9 @@ char** tokens;
 
 int main(int argc, char* argv[])
 {
-    
+    FILE *logger = fopen("runlog", "w");
+    fprintf(logger, "Initialized Program. PID - %d\n", getpid());
+    fclose(logger);
 
     initialize();
     // Allocate buffer for user input.
@@ -20,23 +22,25 @@ int main(int argc, char* argv[])
     
     // Loop until loop returns false. If batchfile was given, loop on it.
     if(argc > 1){
-        while(batchloop(inputbuf, argv[1]));
+        FILE *batchfile = fopen(argv[1], "r");
+        while(batchloop(inputbuf, batchfile));
     }
-    // No batchfile. Loop on terminal input.
-    while(loop(inputbuf));
-    
+    else {
+        // No batchfile. Loop on terminal input.
+        while(loop(inputbuf));
+    }
     // Free all allocated space.
     free(inputbuf);
     flush_tokens(tokens);
     free(tokens);
 }
 
-boolean_t batchloop(char* inputbuf, char* batchfile)
+boolean_t batchloop(char* inputbuf, FILE* batchfile)
 {
     // Save standard output.
-    uni_stdout = dup(1);
+    // uni_stdout = dup(1);
     // Set in to read from batchfile.
-    FILE *defaultin = fopen(batchfile);
+    FILE *defaultin = batchfile;
     // If can't read batchfile, quit.
     if(defaultin == NULL){
         puts("Can't read batchfile.");
@@ -44,8 +48,7 @@ boolean_t batchloop(char* inputbuf, char* batchfile)
     }
     // Prepare tokens array.
     flush_tokens(tokens);
-    // Print prompt.
-    printf("%s >> ", env->wd);
+    
     // Read in line of input.
     fgets(inputbuf, INPUT_MAX, defaultin);
     // Break line of input into tokens in string array.
@@ -53,9 +56,15 @@ boolean_t batchloop(char* inputbuf, char* batchfile)
     /* Call command and hold return.
     Return yes (continue) until hitting quit or exit or running out of input. */
     boolean_t again = handle_command(tokens) && !feof(defaultin);
+    // Output line break
+    //putchar('\n');
     
-    // Clean up.
-    fclose(defaultin);
+    // Was input redirected? Set it back to batchfile.
+    if(defaultin != batchfile){
+        defaultin = batchfile;
+    }
+    // TODO: Was output redirected? Reset.
+    
     
     return again;
 }
@@ -63,15 +72,14 @@ boolean_t batchloop(char* inputbuf, char* batchfile)
 boolean_t loop(char* inputbuf)
 {
     // Store system in and out defaults to allow later reset.
-    uni_stdin = dup(0);
-    uni_stdout = dup(1);
+    // uni_stdin = dup(0);
+    // uni_stdout = dup(1);
     
-    // Flush stdin so next get only gets new user input.
-    fflush(stdin);
-    // Reset tokens
-    flush_tokens(tokens);
     // Print prompt.
     printf("%s >> ", env->wd);
+    
+    // Reset tokens
+    flush_tokens(tokens);
     // Read in line of input.
     fgets(inputbuf, INPUT_MAX, stdin);
     
@@ -79,14 +87,20 @@ boolean_t loop(char* inputbuf)
     tokenize(tokens, inputbuf);
     
     // Reset standard in and out.
-    fclose(stdin);
-    stdin = uni_stdin;
-    stdout = uni_stdout;
+    // fclose(stdin);
+    // stdin = uni_stdin;
+    // stdout = uni_stdout;
     
     FILE* runlog = fopen("runlog", "a");
     fprintf(runlog, "Back in main loop.\n");
     fprintf(runlog, "Proc - %d\n", getpid());
     fclose(runlog);
+    
+    /*
+    // Flush stdin so next get only gets new user input.
+    //fflush(stdin); undefined (crashing)
+    char c;
+    while( (c = getchar()) != '\n' && c != EOF ) {} ; */
     
     // Send string array to deploy_tokens, and send its return on to caller.
     return handle_command(tokens);
@@ -109,23 +123,29 @@ boolean_t handle_command(char** cmdtokens)
             
         // printf("handle_command function reached cd block with cmd %s\n", cmdtokens[0]); /* DBRL */
         // cd works in parent process only when changing directory.
-        if(cmdtokens[1] != NULL) {
+        if(cmdtokens[1] != NULL && cmdtokens[1][0] != '<' && cmdtokens[1][0] != '>') {
             new_cmd_process(cmdtokens);
             return true;
         }
     } 
     
-    // TODO: Put fork back here, so runbg is check and controls flow.
-    new_cmd_process(tokens);
+    // TODO: Put fork back here, so runbg is checked and controls flow.
+    pid_t cmdpid = fork();
+    if( !cmdpid ) {
+        new_cmd_process(tokens);
+        
+        exit(0);
+    }
     
-    //if( ! runbg(tokens) ) waitpid(cmdpid, 0, 0);
+    //if( ! runbg(tokens) ) 
+    waitpid(cmdpid, 0, 0);
     
     FILE* runlog = fopen("runlog", "a");
     fprintf(runlog, "Back to parent process, returning to loop.\n");
     fprintf(runlog, "Proc - %d\n", getpid());
     fclose(runlog);
-    dup2(uni_stdin, READ);
-    dup2(uni_stdout, WRITE);
+    // dup2(uni_stdin, READ);
+    // dup2(uni_stdout, WRITE);
     
     return true;
 }

@@ -24,7 +24,7 @@ void tokenize(char** tokens, char* inputline);
 
 /*
  *  Function: loop
- *  Main function calls functions to get input and then to deploy processes.
+ *  Get input and call functions to deploy command processes.
  *  Output:
     inputbuf - store user input, read from stdin
  *  Returns: false if shell should exit, true otherwise.
@@ -33,7 +33,13 @@ void tokenize(char** tokens, char* inputline);
  */
  boolean_t loop(char* inputbuf);
  
- boolean_t batchloop(char* input, char* batchfile);
+/*
+ *  Function: batchloop
+ *  Read input from file and call functions to deploy command processes.
+ *  Input:
+    batchfile - text file containing lines of commands
+ */
+ boolean_t batchloop(char* input, FILE* batchfile);
  
  /*
   * Function: handle_command

@@ -370,3 +370,20 @@ void echo(char** tokens){
     }
     puts("");
 }
+
+void tokens_shift_left(char** list, int first, int sublen)
+{
+    // Find out if terminating NULL will be removed. Short circuit solution.
+    int lastindex;
+    for(lastindex = 0; list[lastindex] != NULL; lastindex++) {} ;
+    // Removing an end. Just NULL terminate earlier.
+    if( first + sublen > lastindex){
+        list[first] = NULL;
+        return;
+    }
+    int index;
+    for(index = 0; list[index + first] != NULL; index++){
+        list[index + first] = list[index + first + sublen];
+    }
+    return;
+}

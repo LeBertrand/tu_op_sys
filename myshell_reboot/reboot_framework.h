@@ -181,3 +181,15 @@ void clr();
  *  Prints Hello World. Used to test deployment of processes.
  */
 void ins_hello_world();
+
+/*
+ *  Function: tokens_shift_left
+ *  Remove some tokens from list of strings, starting at index first.
+ *  Fill removed space by shifting next tokens forward toward head of tokens list.
+ *  Inputs:
+    list - array of strings from which some are removed
+    first - index of first token to remove
+    sublen - how many tokens to remove
+ *  Note: Safe to use on list of unknown length. List will still be NULL terminated.
+ */
+void tokens_shift_left(char** list, int first, int sublen);

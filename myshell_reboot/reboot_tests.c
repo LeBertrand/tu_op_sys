@@ -1,13 +1,13 @@
 #include "reboot_framework.c"
 #include "shell_interface/shell_interface.h"
-#include "shell_interface/tokenize.c"
+//#include "shell_interface/tokenize.c"
 
 int main()
 {
     //initialize();
-    char** tokens = (char**) malloc(4*sizeof(char*));
-    char linein[100];
-    strcpy(linein,"cat fluids | wc -a > calulation.txt | grep \"-v\" ");
+    //char** tokens = (char**) malloc(4*sizeof(char*));
+    //char linein[100];
+    //strcpy(linein,"cat fluids | wc -a > calulation.txt | grep \"-v\" ");
     /* Check safe cat function
     char* mybuf;
     int numchars = 16;
@@ -84,10 +84,50 @@ int main()
     
     //dir();
     
+    /*
     tokenize(tokens, linein);
     char i;
     for(i = 0; tokens[i] != NULL; i++){
         puts(tokens[i]);
+    } */
+    
+    char* list[10];
+    char* cmd1;
+    cmd1 = (char*) malloc(10);
+    strcpy(cmd1, "First");
+    list[0] = cmd1;
+    char *cmd2;
+    cmd2 = (char*) malloc(10);
+    strcpy(cmd2, "Second");
+    list[1] = cmd2;
+    char *cmd3;
+    cmd3 = (char*) malloc(10);
+    strcpy(cmd3, "Third");
+    list[2] = cmd3;
+    char *cmd4;
+    cmd4 = (char*) malloc(10);
+    strcpy(cmd4, "Fourth");
+    list[3] = cmd4;
+    char *cmd5;
+    cmd5 = (char*) malloc(10);
+    strcpy(cmd5, "Fifth");
+    list[4] = cmd5;
+    char *cmd6;
+    cmd6 = (char*) malloc(10);
+    strcpy(cmd6, "Sixth");
+    list[5] = cmd6;
+    char *cmd7;
+    cmd7 = (char*) malloc(10);
+    strcpy(cmd7, "Seventh");
+    list[6] = cmd7;
+    char *cmd8;
+    cmd8 = NULL;
+    //strcpy(cmd8, "Eighth");
+    list[7] = cmd8;
+    tokens_shift_left(list, 4,6);
+    int index;
+    for(index = 0; list[index] != NULL;index++ ){
+        puts(list[index]);
     }
     
     return 0;

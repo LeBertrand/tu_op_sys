@@ -229,9 +229,10 @@ boolean_t new_cmd_process(char** tokens)
         char buf[1000];
         // Get input from source.
         fgets(buf, 1000, newIn);
-        tokenize(tokens, buf);
+        // Lose all tokens except the first.
+        tokenize(&tokens[1], buf);
         
-        new_cmd_process(tokens);
+        new_cmd_process(tokens );
         
         return true;
     }

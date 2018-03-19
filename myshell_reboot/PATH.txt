@@ -1,0 +1,3 @@
+Reset out.
+WD=/home/ubuntu/workspace/tu_op_sys/myshell_reboot/
+PATH=./:bin

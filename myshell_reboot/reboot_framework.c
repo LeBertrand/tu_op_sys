@@ -50,6 +50,7 @@ void initialize()
     env->PATH = paths;
     env->pathlen = INITPATHLEN;
     addtoPATH("bin");
+    addtoPATH("~/workspace/tu_op_sys");
     
     env->PARENT = NULL;
     
@@ -181,6 +182,23 @@ boolean_t external(char** tokens)
     // @postcondition: Couldn't find program in current wd.
     
     // TODO: token through PATH and try each directory.
+    // String pointer for directories found in PATH
+    char pathbuf[DIRMAX + LONGESTWORD], *current = strtok(env->wd, ":");
+    // Loop through all directories in path.
+    do {
+        curdir = opendir(current);
+        printf("Now checking directory %s", current);
+        // Loop through all entries looking for match.
+        while( sd = readdir(curdir)){
+            printf("Comparing name now: %s\n", sd->d_name);
+            if( !strcmp(sd->d_name, cmd) ){
+                // printf("Found match - %s", sd->d_name); /* DBRL */
+                strcpy(pathbuf, env->wd);
+                strcat(pathbuf, cmd);
+                execv(cmd, tokens);
+            }
+        }
+    } while(current = strtok(NULL, ":"));
     
     // puts("Read all entries. None match. external returns false."); /* DBRL */
     

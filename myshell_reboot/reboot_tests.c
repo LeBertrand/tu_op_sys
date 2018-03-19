@@ -1,5 +1,5 @@
 #include "reboot_framework.c"
-#include "shell_interface/shell_interface.h"
+#include "shell_interface.h"
 //#include "shell_interface/tokenize.c"
 
 int main()

@@ -1,3 +1,0 @@
-C:/Users/J/Documents/Temple University/Operating Systems/myshell reboot/cmake-build-debug/CMakeFiles/myshell_reboot.dir
-C:/Users/J/Documents/Temple University/Operating Systems/myshell reboot/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/J/Documents/Temple University/Operating Systems/myshell reboot/cmake-build-debug/CMakeFiles/rebuild_cache.dir

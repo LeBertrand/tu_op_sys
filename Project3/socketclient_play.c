@@ -7,8 +7,9 @@
 #include <string.h>
 #include "open_listenfd.c"
 
-int main()
+int main(int argc, char *argv[])
 {
+
     int socket_desc;
     struct sockaddr_in server;
     char *message, server_reply[2000];
@@ -29,7 +30,9 @@ int main()
         return 1;
     }
 
-    puts("Connected");
+    send(socket_desc, argv[1], strlen(argv[1]), 0);
+    //puts("Connected");
+
 
     return 0;
 }

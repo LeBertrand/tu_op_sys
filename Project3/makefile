@@ -1,9 +1,9 @@
 CC=gcc
 
 cliserun: socketserver_play.c socketclient_play.c
-	server
-	client
+	make server
+	make client
 server: socketserver_play.c
-	$(CC) socketserver_play.c -o server.out
+	$(CC) socketserver_play.c -o server.out -lpthread
 client: socketclient_play.c
 	$(CC) socketclient_play.c -o client.out

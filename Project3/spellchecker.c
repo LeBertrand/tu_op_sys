@@ -28,11 +28,13 @@ Wordslist_t spellcheck_initialize(char *filename)
     if(filename != NULL){
         wordsfile.dictionary = fopen(filename, "r");
     }
-    if( filename == NULL || wordsfile.dictionary = NULL){
+    if( filename == NULL || wordsfile.dictionary == NULL){
         wordsfile.dictionary = fopen("dictionary", "r");
     }
-    if(Wordsfile.dictionary != NULL) return Wordsfile;
-    return NULL;
+    // If no dictionary file was loaded, don't terminate process, but print error.
+    if(wordsfile.dictionary == NULL)
+        fprintf(stderr, "Failed to load dictionary. All spell checks will return false");
+    return wordsfile;
 }
 
 boolean_t spellcheck_searchword(Wordslist_t *wl, char *target)
@@ -40,11 +42,15 @@ boolean_t spellcheck_searchword(Wordslist_t *wl, char *target)
     rewind(wl->dictionary);
     char buf[30];
     while( !feof(wl->dictionary) ){
-        // Trim newline
         
+        // Read in next word
         fgets(buf, 30, wl->dictionary);
-        strcpy(buf, strtok(buf, " \n"));
+        // Trim newline
+        if( buf[ strlen(buf) - 1] == '\n')
+            buf[ strlen(buf) - 1] = '\0';
+        
+        // Check for match with target.
         if( ! strcmp(buf, target) ) return true;
-    }
+    } // Finished checking file. @post - target isn't in dictionary.
     return false;
 }

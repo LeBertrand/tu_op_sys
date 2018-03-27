@@ -32,6 +32,9 @@ Wordslist_t spellcheck_initialize(char *filename);
  *  param target - word to search for
  *  param wl - struct containing dictionary file struct
  *  return - true if match found, else false
+ 
+ *  Note: Rediculously inefficient. Linear search through entire disk file.
+    TA told me not to worry about storing a hash-set in RAM or anything like that.
  */
-boolean_t spellcheck_searchword(Wordslist_t wl, char *target);
+boolean_t spellcheck_searchword(Wordslist_t *wl, char *target);
 

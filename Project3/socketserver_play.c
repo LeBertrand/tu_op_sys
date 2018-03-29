@@ -1,11 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <string.h>
-//#include "open_listenfd.c"
-#include "../csapp.c"
+#include "Project3.h"
 
 void* showfirst(void*);
 int sd[5];

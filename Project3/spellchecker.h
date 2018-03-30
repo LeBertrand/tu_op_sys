@@ -7,6 +7,9 @@
 typedef enum { false = 0, true = 1 } boolean_t;
 #endif
 
+
+#ifndef SPELLCHECKER
+#define SPELLCHECKER
 /*
  *  Wrapper structure for shared file pointer. Exists only to allow calling
  *  processes to initialize variables without this code living in any process.
@@ -28,13 +31,14 @@ Wordslist_t currentData;
 Wordslist_t spellcheck_initialize(char *filename);
 
 /*
- *  Read lines of dictionary looking for one that matches argument. 
+ *  Read lines of dictionary looking for one that matches argument.
  *  param target - word to search for
  *  param wl - struct containing dictionary file struct
  *  return - true if match found, else false
- 
+
  *  Note: Rediculously inefficient. Linear search through entire disk file.
     TA told me not to worry about storing a hash-set in RAM or anything like that.
  */
 boolean_t spellcheck_searchword(Wordslist_t *wl, char *target);
 
+#endif

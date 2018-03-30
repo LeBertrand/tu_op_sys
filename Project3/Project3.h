@@ -1,4 +1,5 @@
 #include "../csapp.c"
+#include "spellchecker.h"
 
 /*
 #include <stdlib.h>
@@ -114,13 +115,6 @@ Function headers for Networked Spell Checker.
  * Safely insert a socket descriptor into a buffers struct
     concurrently with other threads.
 
- *  Procedure:
-    Lock socket_requests buffer.
-    Wait for buffer not full.
-    Put socket descriptor in next spot in buffer.
-    Signal buffer not empty.
-    Unlock buffer.
-
  *  Inputs
     sd - socketdescriptor for connected client.
  */
@@ -131,3 +125,10 @@ Function headers for Networked Spell Checker.
     with other processes.
  */
 int take_socket();
+
+/*
+ *  Try to consume from socket_requests
+ *  Check all input received over socket.
+ *  When client disconnects, startover.
+ */
+void thread_routine();

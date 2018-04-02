@@ -42,6 +42,11 @@ int main(int argc, char *arg[])
         worker_ids[i] = i;
     }
     
+    // Deploy logger
+    pthread_t loggerthread;
+    void *varg;
+    pthread_create(&loggerthread, NULL, &logger_routine, varg);
+    
     // Sit in loop producing connected sockets to clients.
     while(true){
         connectionSocket = accept(listeningSocket, NULL, NULL);
@@ -52,7 +57,9 @@ int main(int argc, char *arg[])
         pthread_join(workers[i], NULL);
     }
     
-    // Shouldn't ever display. Indicates loop broke.
+    pthread_join(loggerthread, NULL);
+    
+    // Shouldn't ever display. Indicates loops broke.
     puts("\n\nGood run. Closing down...");
     return 1;
 }
@@ -71,14 +78,14 @@ void *worker_routine(void *varg)
     char local_buf[100];
     memset(local_buf, '\0', 100);
     
-    // TODO: change this 'couple times' to infinite loop
+    // Main Loop -- receiving and spell checking
     while(true){
         
         // Safe get socket from list of connections
         connectionSocket = take_socket();
     
         // ** DBRL ** Report thread ID and claim connection.
-        printf("Thread #%d claimed connection.\n", pthread_self());
+        // printf("Thread #%d claimed connection.\n", (int) pthread_self());
         
         // Continue reading as long as connection exists.
         //         Read word from client.
@@ -101,8 +108,9 @@ void *worker_routine(void *varg)
             
             // Send reply
             send(connectionSocket, local_buf, strlen(local_buf), 0);
-        // TODO: Produce in logging buffer.
-        //         If client terminates connection, close.
+            
+            // Put reply in log queue
+            append_lookups(local_buf);
         
             memset(local_buf, '\0', 100);
         }
@@ -111,12 +119,18 @@ void *worker_routine(void *varg)
     
 }
 
+void* logger_routine(void *varg)
+{
     
-    // Logger Thread
-    //     Block on Jobs complete queue full.
-    //     When jobs complete queue not empty:
-    //         Get job from queue.
-    //         Add to log file.
+    char *msg;
+    while(msg = take_lookup()){
+        FILE *log = fopen("SpellCheckLog.txt", "a");
+        fprintf(log, msg);
+        free(msg);
+        fclose(log);
+    }
+}
+
 
 void append_sockets(int sd){
     // Lock socket_requests buffer
@@ -151,4 +165,41 @@ int take_socket()
     pthread_mutex_unlock(&sockets_lock);
 
     return sd;
+}
+
+void append_lookups(char *lookupmsg)
+{
+    char *msgspace = (char*) malloc(strlen(lookupmsg));
+    strcpy(msgspace, lookupmsg);
+    pthread_mutex_lock(&log_lock);
+    // As long as log queue is full when checked...
+    while(buffers.msg_count == buffers.msg_length){
+        // Block until signal that log_queue notfull.
+        pthread_cond_wait(&log_queue_notfull, &log_lock);
+    }
+    // Put lookupmsg into log message buffer
+    mx_circbuf_acceptmsg(&buffers, msgspace);
+    
+    // Signal log_msg not empty
+    pthread_cond_signal(&log_queue_notempty);
+    // Unlock log_msgs
+    pthread_mutex_unlock(&log_lock);
+}
+
+char *take_lookup()
+{
+    pthread_mutex_lock(&log_lock);
+    // As long as buffer is empty
+    while(buffers.msg_count == 0){
+        // Block until it's not empty and then try again.
+        pthread_cond_wait(&log_queue_notempty, &log_lock);
+    }
+    // Get next log msg
+    char* msg = mx_circbuf_offermsg(&buffers);
+    // Signal log msgs not full
+    pthread_cond_signal(&log_queue_notfull);
+    // Unlock socket_requests
+    pthread_mutex_unlock(&log_lock);
+    
+    return msg;
 }

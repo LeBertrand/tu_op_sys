@@ -1,5 +1,6 @@
 #include "../csapp.c"
 #include "spellchecker.h"
+#include <sys/socket.h>
 
 /*
 #include <stdlib.h>

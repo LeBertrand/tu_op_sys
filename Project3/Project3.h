@@ -18,6 +18,7 @@
 */
 
 const char *DEFAULT_DICTIONARY = "dictionary";
+const char LONGEST_WORD = 30;
 const int DEFAULT_PORT = 5000;
 const int NUM_WORKERS = 5;
 const int Q_LEN = 20;
@@ -132,4 +133,4 @@ int take_socket();
  *  Check all input received over socket.
  *  When client disconnects, startover.
  */
-void thread_routine();
+void *worker_routine(void *);

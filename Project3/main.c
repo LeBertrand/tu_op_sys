@@ -4,8 +4,11 @@ pthread_cond_t socket_requests_notfull, socket_requests_notempty;
 pthread_cond_t log_queue_notfull, log_queue_notempty;
 pthread_mutex_t sockets_lock, log_lock;
 
+// Declare location for array of workers.
 pthread_t *workers;
+// Declare location for array of worker IDs
 char *worker_ids;
+// Declare struct holding buffers and concurrency tools for sockets and log.
 mx_circbuf_t buffers;
 
 int main(int argc, char *arg[])
@@ -28,38 +31,92 @@ int main(int argc, char *arg[])
     pthread_mutex_init(&sockets_lock, NULL);
     pthread_mutex_init(&log_lock, NULL);
 
+    
     //  Open Listening Socket.
-    int listeningSocket = open_listenfd(5000);
-
-
-
-
+    int connectionSocket, listeningSocket = open_listenfd(5000);
+    
+    // Deploy workers
+    char i;
+    for(i = 0; i < NUM_WORKERS; i++){
+        int tid = pthread_create(&workers[i], NULL, &worker_routine, NULL);
+        worker_ids[i] = i;
+    }
+    
     // Sit in loop producing connected sockets to clients.
-
-//         Busy wait on socket.
-//         Block on fd queue full.
-//         When job comes in, put fd in queue.
-//         Signal job in fd queue.
-//
-//
+    while(true){
+        connectionSocket = accept(listeningSocket, NULL, NULL);
+        append_sockets(connectionSocket);
+    }
+    
+    for(i = 0; i < NUM_WORKERS; i++){
+        pthread_join(workers[i], NULL);
+    }
+    
+    // Shouldn't ever display. Indicates loop broke.
+    puts("\n\nGood run. Closing down...");
+    return 1;
 }
 
+
 // Worker Threads:
-//     Block on fd queue empty.
-//     When signaled, take a client from queue and service.
-//     Signal queue not full.
-//
-//     Spell Check service:
-//         Read word from client.
-//         Check dictionary for word.
-//         Return true of false.
-//         If client terminates connection, close.
-//
-// Logger Thread
-//     Block on Jobs complete queue full.
-//     When jobs complete queue not empty:
-//         Get job from queue.
-//         Add to log file.
+void *worker_routine(void *varg)
+{
+    // Variable holds connected socket taken from shared socket_requests buffer.
+    int connectionSocket;
+    
+    // Setup dictionary within thread's own local varspace. Dictionary isn't shared.
+    Wordslist_t wl = spellcheck_initialize(DEFAULT_DICTIONARY);
+    
+    // Allocate string to read into from socket.
+    char local_buf[100];
+    memset(local_buf, '\0', 100);
+    
+    // TODO: change this 'couple times' to infinite loop
+    while(true){
+        
+        // Safe get socket from list of connections
+        connectionSocket = take_socket();
+    
+        // ** DBRL ** Report thread ID and claim connection.
+        printf("Thread #%d claimed connection.\n", pthread_self());
+        
+        // Continue reading as long as connection exists.
+        //         Read word from client.
+        while( recv(connectionSocket, local_buf, 100, 0) ){
+        //     Spell Check service:
+            // Ignore blank line
+            if( *local_buf == '\n' ) {
+                continue;
+            } 
+            //Trim newline char
+            if( local_buf[ strlen(local_buf) - 1 ] == '\n'){
+                local_buf[ strlen(local_buf) - 1 ] = '\0';
+            }
+            // Check dictionary for word.
+            if( spellcheck_searchword(&wl, local_buf) ){
+                strcat(local_buf, " OK\n");
+            } else {
+                strcat(local_buf, " MISSPELLED\n");
+            }
+            
+            // Send reply
+            send(connectionSocket, local_buf, strlen(local_buf), 0);
+        // TODO: Produce in logging buffer.
+        //         If client terminates connection, close.
+        
+            memset(local_buf, '\0', 100);
+        }
+        
+    }
+    
+}
+
+    
+    // Logger Thread
+    //     Block on Jobs complete queue full.
+    //     When jobs complete queue not empty:
+    //         Get job from queue.
+    //         Add to log file.
 
 void append_sockets(int sd){
     // Lock socket_requests buffer

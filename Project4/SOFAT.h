@@ -1,4 +1,15 @@
 
+/*
+ *	Project 4 Header File
+ *	Shmuel's Operable File System Implementation
+ *	Temple University, Intro to Operating Systems, Spring 2018
+
+ *	This project involves C++ because I determined that member methods would
+ 	be helpful for my own implementation of open file objects.
+ 	Otherwise, I've maintained consistency with C, using my own implementation
+ 	of the boolean type and character arrays insted of std:string objects.
+ */
+
 #ifndef BOOLEAN_T
 #define BOOLEAN_T
 typedef enum { false = 0, true = 1 } boolean_t;
@@ -23,11 +34,125 @@ typedef short blockID;
  * Function: SOFAT_allocat_block
  * Input:
  	predecessor - blockID of the block to be extended, or 0
+ * Throws:
+ 	Memory Full Error
  * Return - blockID of newly allocated block.
+
+ * Allocate new block of memory. If predecessor in range [1, 212],
+ 	find it in FAT, and set it to blockID of newly allocated block.
+ 	Set newly allocated block to 0xFFFF.
+ 	Return blockID of new block.
  */
 blockID SOFAT_allocate_block(blockID predecessor);
 
 class DirectoryListObject {
+
+	public:
+		/*
+		 *	No arguments to constructor. Object starts at root by default.
+		 *	All internal fields set to refer to root.
+		 */
+		DirectoryListObject();
+		/*
+		 * Function: advance_position
+
+		 * Advance W/R position by one.
+		 */
+		void advance_position();
+
+		/*
+		 * Function: backtrack
+
+		 * Retract W/R position by one.
+		 */
+		void backtrack();
+
+		/*
+		 *	Function: change_directory
+		 *	Input:
+		 	directoryname - name of subdirectory to navigate to
+		 *	Return true if navigated to directory, else return false.
+
+		 *	Change object to reflect a new directory. Map memory
+		 	and update all fields to make that the working directory.
+		 */
+		boolean_t change_directory(char *directory_name);	
+
+		/*
+		 *	Function: open_file
+		 *	Input:
+		 	name - filename in current directory, or absolute file path delimited by '/'
+		 	options - flags
+		 *	Return DirectoryListingObject set to named file.
+
+		 *	Try to open file of given name by returning DirectoryListingObject
+		 	to represent it. If argument is a single token, try to open as
+		 	relative path. Else try absolute path from root. For file in root,
+		 	~/filename works.
+		 */
+		static DirectoryListObject open_file(char *name, ...);
+
+		/*
+		 *	Function: create_file
+		 *	Input:
+		 	name - filename in current directory, or absolute file path delimited by '/'
+		 	options - flags
+		 *	Return true if file created, else false
+
+		 *	Try to create file of given name. If argument is a single token, try to open as
+		 	relative path. Else try absolute path from root. For file in root,
+		 	~/filename works. Space allocation is handled. Function safe a application level.
+		 */
+		static boolean_t create_file(char *pathname, ...);
+
+		/*
+		 *	Function: create_directory
+		 *	Input:
+		 	name - name of new director
+		 	options - flags
+
+		 *	Create new subdirectory in current directory, with given pathname.
+		 */
+		static void create_directory(char *pathname, ...);
+
+		/*
+		 *	Function: close_file
+		 *
+		 *	Close file currently represented by this object, and clean up object.
+		 *	Unlock file, update info in directory listing, and update internal fields.
+		 */
+		static void close_file();
+
+		/*
+		 *	Function: write_file
+		 *	Input: input_string - string to insert in file at current position
+
+		 *	Return number of characters written
+
+		 *	Write given string to file. Allocate space as necessay.
+		 	Return number of bytes written, which in normal cases should be
+		 	length of input_string.
+		 */
+		int write_file(char *input_string);
+
+		/*
+		 *	Function: read_file
+		 *	Input: num_characters - Maximum number of characters to read from file
+		 *	Write given string to file. Allocate space as necessay.
+		 *	Return number of bytes written, which in normal cases should be
+		 	length of input_string.
+
+		 *	Read from file, a maximum of n characters, copy into buffer, and
+		 	return location of buffer.
+		 *	Read not supported on string length more than 2^8 
+		 */
+		char *read_file(long n);
+
+		/*
+		 *	Function: delete_file
+		 *	Input(filename):
+		 	
+		 */
 
 	private:
 		// Buffer mapped to current data block

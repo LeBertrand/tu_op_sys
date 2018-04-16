@@ -12,6 +12,8 @@
  	of the boolean type and character arrays insted of std:string objects.
  */
 
+ #include <cstdio>
+ 
 #ifndef BOOLEAN_T
 #define BOOLEAN_T
 typedef enum { false = 0, true = 1 } boolean_t;
@@ -30,7 +32,13 @@ typedef struct {
 } DirectoryListing;
 
 // Currently working with 2^12 blocks
-typedef short blockID;
+typedef unsigned short blockID;
+const unsigned short blocksize = 512;
+
+// Number of blocks before block numbering begins
+char offset = 0; // Statically initialize to 0, but reset in boot procedure
+char FATblocks = 0; // ' '
+char rootblocks = 0; // ' '
 
 /*
  * Function: SOFAT_allocat_block
@@ -181,8 +189,7 @@ class DirectoryListObject {
 		blockID; parent_starting_block;
 		// Bytes written since last update to DirectoryListing
 		long bytes_written;
-		// Number of blocks before block numbering begins
-		char offset;
+		
 		
 		// Map to new block
 		boolean_t remap(blockID);

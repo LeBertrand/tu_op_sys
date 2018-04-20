@@ -1,15 +1,19 @@
 
 /*
  *	Project 4 Header File
- *	Shmuel's Operable File System Implementation
+ *	Shmuel's Operable File Allocation Table - File System Implementation
  *	Temple University, Intro to Operating Systems, Spring 2018
 
+ *	Functions to be used in file management by File System and by applications.
+ 
  *	This project involves C++ because I determined that member methods would
  	be helpful for my own implementation of open file objects.
  	Otherwise, I've maintained consistency with C, using my own implementation
  	of the boolean type and character arrays insted of std:string objects.
  */
 
+ #include <cstdio>
+ 
 #ifndef BOOLEAN_T
 #define BOOLEAN_T
 typedef enum { false = 0, true = 1 } boolean_t;
@@ -28,7 +32,13 @@ typedef struct {
 } DirectoryListing;
 
 // Currently working with 2^12 blocks
-typedef short blockID;
+typedef unsigned short blockID;
+const unsigned short blocksize = 512;
+
+// Number of blocks before block numbering begins
+char offset = 0; // Statically initialize to 0, but reset in boot procedure
+char FATblocks = 0; // ' '
+char rootblocks = 0; // ' '
 
 /*
  * Function: SOFAT_allocat_block
@@ -150,9 +160,21 @@ class DirectoryListObject {
 
 		/*
 		 *	Function: delete_file
-		 *	Input(filename):
+		 *	Input: filename - local name or absolute path of file to delete
+		 *	Return true if file found and deleted, else false
+		 
+		 *	Search for file with name passed. If file found, show its blocks
+			as available, and clear its directory listing.
 		 	
 		 */
+		boolean_t delete_file(char *filename);
+		 
+		/*
+		 *	Function: seek_position
+		 *	Input: N - byte number target for position pointer
+		 *	Return number of bytes read, up to N.
+		 */
+		long seek_position(long N);
 
 	private:
 		// Buffer mapped to current data block
@@ -167,6 +189,10 @@ class DirectoryListObject {
 		blockID; parent_starting_block;
 		// Bytes written since last update to DirectoryListing
 		long bytes_written;
+		
+		
+		// Map to new block
+		boolean_t remap(blockID);
 
 } ;
 

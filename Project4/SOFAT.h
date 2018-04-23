@@ -1,18 +1,18 @@
 
 /*
  *	Project 4 Header File
- *	Shmuel's Operable File Allocation Table - File System Implementation
+ *	Shmuel's OS File Allocation Table - File System Implementation
  *	Temple University, Intro to Operating Systems, Spring 2018
 
  *	Functions to be used in file management by File System and by applications.
  
- *	This project involves C++ because I determined that member methods would
- 	be helpful for my own implementation of open file objects.
+ *	This project involves C++ because I determined that file objects with member
+ 	methods would be helpful for my own implementation of open file objects.
  	Otherwise, I've maintained consistency with C, using my own implementation
  	of the boolean type and character arrays insted of std:string objects.
  */
 
- #include <cstdio>
+#include <stdio.h>
  
 #ifndef BOOLEAN_T
 #define BOOLEAN_T
@@ -23,22 +23,37 @@ typedef enum { false = 0, true = 1 } boolean_t;
 #ifndef PROJECT4H
 #define PROJECT4H
 
-typedef struct {
-	char filename[100],
-	boolean_t lock,
-	boolean_t subdirectory,
-	short starting_block,
+typedef struct DirectoryListing {
+	char filename[100];
+	boolean_t lock;
+	boolean_t subdirectory;
+	short starting_block;
 	int size
 } DirectoryListing;
 
 // Currently working with 2^12 blocks
 typedef unsigned short blockID;
 const unsigned short blocksize = 512;
+const int MB_SIZE = 0x100000;
 
 // Number of blocks before block numbering begins
-char offset = 0; // Statically initialize to 0, but reset in boot procedure
+char blocks_offset = 0; // Statically initialize to 0, but reset in boot procedure
 char FATblocks = 0; // ' '
 char rootblocks = 0; // ' '
+
+/*
+ * Function: block_byte_map
+ * Input:
+ 	block - block number
+ 	offset - byte within block
+ * Return physical address indicated by block number and byte offset
+
+ * Convenience function to turn block number:offset pair into one
+   physical address.
+ */
+int block_byte_map(int block, int page_offset){
+	return blocksize * block + page_offset;
+}
 
 /*
  * Function: SOFAT_allocat_block
@@ -195,5 +210,7 @@ class DirectoryListObject {
 		boolean_t remap(blockID);
 
 } ;
+
+DirectoryListObject working_directory;
 
 #endif

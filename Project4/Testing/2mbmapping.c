@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     //const long int MB_SIZE = pow(2,20);
     const int MB_SIZE = 0x100000;
     char *buf = mmap(NULL, 2*MB_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED, fd, 0);
-    if(buf = MAP_FAILED){
+    if(buf == MAP_FAILED){
         puts("map failed");
         exit(1);
     }

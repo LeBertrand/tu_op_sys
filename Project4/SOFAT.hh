@@ -12,23 +12,28 @@
  	of the boolean type and character arrays insted of std:string objects.
  */
 
+#include <stdlib.h>
 #include <stdio.h>
- 
-#ifndef BOOLEAN_T
-#define BOOLEAN_T
-typedef enum boolean_t { false = 0, true = 1 } boolean_t;
-#endif
+#include <unistd.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 
+
+// #ifndef BOOLEAN_T
+// #define BOOLEAN_T
+// enum class boolean_t { false = 0, true = 1 };
+// #endif
+// Don't know why that enum won't compile, but I'll just use the C++ bool
 
 #ifndef PROJECT4H
 #define PROJECT4H
 
 typedef struct DirectoryListing {
 	char filename[100];
-	boolean_t lock;
-	boolean_t subdirectory;
+	bool lock;
+	bool subdirectory;
 	short starting_block;
-	int size
+	int size;
 } DirectoryListing;
 
 // Currently working with 2^12 blocks
@@ -101,7 +106,7 @@ class DirectoryListObject {
 		 *	Change object to reflect a new directory. Map memory
 		 	and update all fields to make that the working directory.
 		 */
-		boolean_t change_directory(char *directory_name);	
+		bool change_directory(char *directory_name);	
 
 		/*
 		 *	Function: open_file
@@ -128,7 +133,7 @@ class DirectoryListObject {
 		 	relative path. Else try absolute path from root. For file in root,
 		 	~/filename works. Space allocation is handled. Function safe a application level.
 		 */
-		static boolean_t create_file(char *pathname, ...);
+		static bool create_file(char *pathname, ...);
 
 		/*
 		 *	Function: create_directory
@@ -182,7 +187,7 @@ class DirectoryListObject {
 			as available, and clear its directory listing.
 		 	
 		 */
-		boolean_t delete_file(char *filename);
+		bool delete_file(char *filename);
 		 
 		/*
 		 *	Function: seek_position
@@ -201,13 +206,13 @@ class DirectoryListObject {
 		// Read/Write position in current block
 		short current_position;
 		// Pointer to parent starting block
-		blockID; parent_starting_block;
+		blockID parent_starting_block;
 		// Bytes written since last update to DirectoryListing
 		long bytes_written;
 		
 		
 		// Map to new block
-		boolean_t remap(blockID);
+		bool remap(blockID);
 
 } ;
 

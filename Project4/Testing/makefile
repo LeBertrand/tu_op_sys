@@ -5,3 +5,6 @@ CC=gcc
 
 getBlockSize: getpagesize.c
 	$(CC) getpagesize.c -o sizetest.out -lm
+
+wipeDrive: wipeDrive.c
+	$(CC) wipeDrive.c -o wipeDrive.out

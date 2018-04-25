@@ -40,14 +40,16 @@ int main(int argc, char *argv[])
     puts("\nMemory mapped. Pointer returned.\n");
 
     unsigned long int i;
-    for(i = 0; i < 100; i++){
-        buf[i] = i % 100;
+    char letter = 0;
+    for(i = 0; i < pow(2,20); i++){
+        buf[i] = letter++;
     }
 
     strcpy(buf, "Now is the time for all good men to come to the aid of their party");
 
     //munmap(buf, MB_SIZE);
 
+    //msync(buf);
     close(fd);
     return 0;
 }

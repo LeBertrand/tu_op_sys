@@ -38,7 +38,7 @@ typedef struct DirectoryListing {
 } DirectoryListing;
 
 // Currently working with 2^12 blocks
-typedef unsigned short blockID;
+typedef short blockID;
 const unsigned short blocksize = 512;
 const int MB_SIZE = 0x100000;
 
@@ -47,6 +47,12 @@ const char bootblocks = 1; // Only one block ever given to boot info.
 char blocks_offset = 0; // Statically initialize to 0, but reset in boot procedure
 char FATblocks = 0; // ' '
 char rootblocks = 0; // ' '
+char MAX_BLOCKID = 212;
+
+// Convenience pointer to start of FAT for searching FAT entries.
+blockID *start_of_FAT, *end_of_FAT;
+// Convenience pointer to start of root for traversing file tree.
+char *start_of_root;
 
 // Global scope for pointer to memory map buffer
 char *physical_memory;
@@ -80,10 +86,6 @@ inline int block_byte_map(int block, int page_offset){
  */
 blockID SOFAT_allocate_block(blockID predecessor);
 
-#include "DirectoryListObject.hh"
-
-DirectoryListObject *working_directory;
-
 /*
  *	Function: boot_process
  *	Reads in values to determine blocks offset to data area.
@@ -92,3 +94,7 @@ DirectoryListObject *working_directory;
 void boot_process();
 
 #endif
+
+#include "DirectoryListObject.cpp"
+
+DirectoryListObject *working_directory;

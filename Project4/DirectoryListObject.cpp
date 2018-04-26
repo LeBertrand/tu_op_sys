@@ -1,3 +1,4 @@
+#include "DirectoryListObject.hh"
 
 DirectoryListObject::DirectoryListObject( /*const char *dirname */ )
 {
@@ -32,27 +33,27 @@ void DirectoryListObject::backtrack()
 
 }
 
-bool DirectoryListObject::change_directory( /* char *directory_name */ )
+bool DirectoryListObject::change_directory( char *directory_name )
 {
 	return true;
 }
 
-static DirectoryListObject DirectoryListObject::open_file(char *name, ...)
+DirectoryListObject *DirectoryListObject::open_file(char *name, ...)
 {
 	return new DirectoryListObject();
 }
 
-static bool DirectoryListObject::create_file(char *pathname, ...)
+bool DirectoryListObject::create_file(char *pathname, ...)
 {
 	return true;
 }
 
-static void DirectoryListObject::create_directory(char *pathname, ...)
+void DirectoryListObject::create_directory(char *pathname, ...)
 {
 
 }
 
-static void DirectoryListObject::close_file()
+void DirectoryListObject::close_file()
 {
 
 }

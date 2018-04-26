@@ -1,3 +1,8 @@
+#ifndef DIRECTORYLISTOBJECT_H
+#define DIRECTORYLISTOBJECT_H
+
+typedef short blockID;
+
 class DirectoryListObject {
 
 	public:
@@ -43,7 +48,7 @@ class DirectoryListObject {
 		 	relative path. Else try absolute path from root. For file in root,
 		 	~/filename works.
 		 */
-		static DirectoryListObject open_file(char *name, ...);
+		DirectoryListObject *open_file(char *name, ...);
 
 		/*
 		 *	Function: create_file
@@ -56,7 +61,7 @@ class DirectoryListObject {
 		 	relative path. Else try absolute path from root. For file in root,
 		 	~/filename works. Space allocation is handled. Function safe a application level.
 		 */
-		static bool create_file(char *pathname, ...);
+		bool create_file(char *pathname, ...);
 
 		/*
 		 *	Function: create_directory
@@ -66,7 +71,7 @@ class DirectoryListObject {
 
 		 *	Create new subdirectory in current directory, with given pathname.
 		 */
-		static void create_directory(char *pathname, ...);
+		void create_directory(char *pathname, ...);
 
 		/*
 		 *	Function: close_file
@@ -74,7 +79,7 @@ class DirectoryListObject {
 		 *	Close file currently represented by this object, and clean up object.
 		 *	Unlock file, update info in directory listing, and update internal fields.
 		 */
-		static void close_file();
+		void close_file();
 
 		/*
 		 *	Function: write_file
@@ -140,3 +145,5 @@ class DirectoryListObject {
 		bool remap(blockID);
 
 } ;
+
+#endif

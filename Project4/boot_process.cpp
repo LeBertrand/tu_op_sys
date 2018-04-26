@@ -3,7 +3,7 @@
 void boot_process(){
 
     int fd = open("Drive2MB",  O_RDWR | O_CREAT, NULL);
-    if(fd == NULL){
+    if(fd < 0){
         puts("Open failed. Cannot open physical memory.");
         exit(1);
     }
@@ -18,6 +18,16 @@ void boot_process(){
 	FATblocks = 0x10; // 16 blocks are the FAT
 	rootblocks = 2;
 	blocks_offset = rootblocks + FATblocks + bootblocks;
+
+	/***************************************************
+	*	Convenience pointers: Start locations of sectors
+	***************************************************/
+	
+	// Set memory pointer to start of FAT for searching FAT entries.
+	start_of_FAT = (blockID*) &(physical_memory[bootblocks * blocksize]);
+	// Set memory pointer to start of root for traversing file tree.
+	start_of_root = &( physical_memory[ (bootblocks + FATblocks) * blocksize]);
+	end_of_FAT = (blockID*) start_of_root - sizeof(blockID);
 
 	working_directory = new DirectoryListObject();
 

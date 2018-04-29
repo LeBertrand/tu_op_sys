@@ -20,19 +20,18 @@
 #include <fcntl.h>
 
 
-// #ifndef BOOLEAN_T
-// #define BOOLEAN_T
-// enum class boolean_t { false = 0, true = 1 };
-// #endif
-// Don't know why that enum won't compile, but I'll just use the C++ bool
+#ifndef BOOLEAN_T
+#define BOOLEAN_T
+typedef enum { false = 0, true = 1 } boolean_t;
+#endif
 
 #ifndef PROJECT4H
 #define PROJECT4H
 
 typedef struct DirectoryListing {
 	char filename[100];
-	bool lock;
-	bool subdirectory;
+	boolean_t lock;
+	boolean_t subdirectory;
 	short starting_block;
 	int size;
 } DirectoryListing;
@@ -123,6 +122,6 @@ void boot_process();
 
 #endif
 
-#include "DirectoryListObject.cpp"
+//#include "DirectoryListObject.cpp"
 
-DirectoryListObject *working_directory;
+//DirectoryListObject *working_directory;

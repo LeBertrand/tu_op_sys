@@ -6,7 +6,7 @@
  */
 
 const char *dlisting = "filename|signal message visible";
-
+const char SEOF = -2;
 
 blockID get_successor_FAT_entry(blockID predecessor)
 {
@@ -20,24 +20,67 @@ int main()
 
 	// char dlisting[35];
 	// strcpy(dlisting, "filename|signal message visible");
+	puts("Now opening sample text.");
+	FILE *sample = fopen("blockandchange.txt", "r");
+	if(sample==NULL){
+		puts("Can't find sample text.");
+		exit(1);
+	}
 
+	// Allocate first block.
 	blockID newfileloc = SOFAT_allocate_block(-1);
+	short writeloc = block_byte_map(blocks_offset + newfileloc, 0);
+	printf("Linux virtual address of first write location is %ld.\n", &(physical_memory[writeloc]));
+	printf("SOFAT physical address of first write is %ld / %lx.\n",
+		writeloc, writeloc);
+	printf("First block number is %d.\n", newfileloc);
+	//printf("Virtual location of data is %ld\n.", writeloc);
 
-	int mem_offset = block_byte_map(blocks_offset + newfileloc, 0);
-	/* DBRL */
-	printf("Calculated Physical Address %d / %x\n", mem_offset, mem_offset);
-	strncpy( &physical_memory[mem_offset], dlisting, strlen(dlisting) - 1);
+	// Fill block
+	static char sampleletter;
+	unsigned short i;
+	for(i = 0; i < 512 && (sampleletter = fgetc(sample)); i++){		
+		physical_memory[writeloc++] = sampleletter;
+	}
+	puts("Block full");
 
-	blockID secondblock = SOFAT_allocate_block(newfileloc);
-	mem_offset = block_byte_map(blocks_offset + secondblock, 0);
+	// Allocate next block
+	blockID secondblockloc = SOFAT_allocate_block(newfileloc);
+	writeloc = block_byte_map(blocks_offset + secondblockloc, 0);
+	puts("");
+	printf("Second block number is %d.\n", secondblockloc);
+	printf("Linux virtual address of second write location is %ld.\n", &(physical_memory[writeloc]));
+	printf("SOFAT physical address of second write is %ld / %lx.\n",
+		writeloc, writeloc);
 
-	printf("Calculated Physical Address %d / %x\n", mem_offset, mem_offset);
-	strncpy( &physical_memory[mem_offset], dlisting, strlen(dlisting) - 1);
+	// Write remaining text.
+	for(i = 0; i < 512 && (sampleletter = fgetc(sample)); i++){		
+		physical_memory[writeloc++] = sampleletter;
+	}
 
-	puts("\nNow searching for block following the fifth (4)");
-	printf("Found block %d.\n", get_successor_FAT_entry(4));
-	puts("Now searching for block following the sixth (5)");
-	printf("Found block %d.\n", get_successor_FAT_entry(5));
+	// Put EOF indicator.
+	physical_memory[writeloc++] = SEOF;
+
+	puts("Filled Second Block");
+	puts("Try reading back...\n");
+
+	// Point to first block of file.
+	sampleletter = 0;
+	writeloc = block_byte_map(blocks_offset + newfileloc, 0);
+	printf("SOFAT physical address of first read location is %ld.\n", writeloc);
+	for(i = 0; i < 512; i++){
+		putchar(physical_memory[writeloc++]);
+	}
+	puts("");
+	// Point to second block of file.
+	blockID secondblockfinder = get_successor_FAT_entry(newfileloc);
+	printf("Found second block at %ld.\n", secondblockfinder);
+	printf("SOFAT physical address of first read location is %ld.\n", writeloc);
+	writeloc = (block_byte_map(blocks_offset + secondblockloc, 0));
+	for(i = 0; i < 512 && (physical_memory[writeloc] != SEOF); i++){
+		putchar(physical_memory[writeloc++]);
+	}
+
 	return 0;
 }
 

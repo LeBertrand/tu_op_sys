@@ -41,6 +41,7 @@ typedef struct DirectoryListing {
 typedef short blockID;
 const unsigned short blocksize = 512;
 const int MB_SIZE = 0x100000;
+const char SEOF = -2;
 
 // Number of blocks before block numbering begins
 const char bootblocks = 1; // Only one block ever given to boot info.
@@ -65,9 +66,10 @@ char *physical_memory;
  * Return physical address indicated by block number and byte offset
 
  * Convenience function to turn block number:offset pair into one
-   physical address.
+   physical address offset (number of bytes from start of
+   physical memory).
  */
-inline int block_byte_map(int block, int page_offset){
+inline short block_byte_map(blockID block, unsigned char page_offset){
 	return blocksize * block + page_offset;
 }
 

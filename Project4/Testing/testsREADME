@@ -1,4 +1,23 @@
+Because of difficulty with circular dependencies and obviously incorrect error messages from the compiler,
+I copy and paste essential functions into their drivers. Consistency of functions in project and tests
+is verified by simple comparison of source text.
+Testing on bash 4.3.48 on Ubuntu WSL.
+
+** Show allocation of two contiguous blocks works **
+Functions/Components validated:
+	'physical memory' addressing in format physical_memory[address]
+	block_byte_map
+	(dummy) boot_process
+	SOFAT_allocate_block
+	get_successor_FAT_entry
+
 First test just shows that allocating space puts bytes where they're expected.
-Run script firstallocation. It copies a blank drive into this folder, essentially
-wiping Drive2MB clean. Then is calls allocate driver. FAT entry should be first
-byte after 19 pages of 512 bytes.
+Run script resetdrive. It copies a blank drive into this folder, essentially
+wiping Drive2MB clean.
+Next, compile and run allocate_drive.cpp. It reads more than a block of text from the file
+'blockandchange.txt', which has a length of 1018 bytes, more than a single block, but
+less than two blocks. It writes one character at a time to the first block until the
+first block is full. It writes to the second block until it runs out of characters in
+the sample text. Then, it reads the characters written in the first block, looks in the
+FAT to find the successor to the first block, and reads from the second block until reaching
+the SO EOF indicator. The output is continuous text that matches the text in the input file.

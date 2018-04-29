@@ -72,7 +72,24 @@ inline int block_byte_map(int block, int page_offset){
 }
 
 /*
- * Function: SOFAT_allocat_block
+ *	Function: Linux_SOFAT_translate
+ *	Input:
+ 	linux_virt_address - Memory pointer, really a virtual address
+ 	from Linux program running SOFAT.
+ *	Return - physical address on drive addressed by SOFAT
+ *	Use function to reduce human confusion in checking
+ *	
+ */
+inline char *linux_SOFAT_addr_translate(char *linux_virt_address){
+	// Ugliest workaround ever, but code compiles.
+	// Was getting type error, even though it's all char *.
+	long int addr = (long int) linux_virt_address;
+	addr -= (long int) physical_memory;
+	return (char*) addr;
+}
+
+/*
+ * Function: SOFAT_allocate_block
  * Input:
  	predecessor - blockID of the block to be extended, or 0
  * Throws:
@@ -85,6 +102,15 @@ inline int block_byte_map(int block, int page_offset){
  	Return blockID of new block.
  */
 blockID SOFAT_allocate_block(blockID predecessor);
+
+/*
+ *	Function: get_successor_FAT_entry
+ *	Input:
+ 	predecessor - block to look up in FAT
+ *	Return: -1 if predecessor is in fact end of file, else blockID
+ 	of block following predecessor.
+ */
+blockID get_successor_FAT_entry(blockID predecessor);
 
 /*
  *	Function: boot_process

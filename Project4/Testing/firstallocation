@@ -1,0 +1,9 @@
+#!/bin/bash
+echo 'Creating blank drive to work in.'
+cp ../Drive2MBBlankCopy Drive2MB
+g++ allocate_driver.cpp -o allocate_block.out
+echo 'Filling first table entry. Should put FAT entry after 512 bytes.'
+echo 'Should put first listing after 19 pages of 512 bytes.'
+./allocate_block.out
+./allocate_block.out
+./allocate_block.out

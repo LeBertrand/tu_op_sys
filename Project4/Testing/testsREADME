@@ -1,0 +1,4 @@
+First test just shows that allocating space puts bytes where they're expected.
+Run script firstallocation. It copies a blank drive into this folder, essentially
+wiping Drive2MB clean. Then is calls allocate driver. FAT entry should be first
+byte after 19 pages of 512 bytes.

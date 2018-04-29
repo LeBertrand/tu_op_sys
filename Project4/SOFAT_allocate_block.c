@@ -1,5 +1,3 @@
-#include "SOFAT.hh"
-
 /*	In order to make dependency hierarchy simple, this will use no
 	member methods of File object. All functionality explicitly
 	implemented here. */
@@ -28,8 +26,14 @@ blockID SOFAT_allocate_block(blockID predecessor)
 	} // Found a free block.
 	if(predecessor > 0 ){
 		// Extending existing file. Record extension in predecessor FAT entry.
-		*(start_of_FAT + predecessor) = new_block_number;
+		void *predecessor_FAToffset = predecessor * sizeof(blockID);
+		*(start_of_FAT + predecessor_FAToffset) = new_block_number;
+		printf("FAT Entry at %d / 0x%x. Writing 0x%x to it.\n", 
+			start_of_FAT + predecessor_FAToffset,
+			start_of_FAT + predecessor_FAToffset,
+			new_block_number);
 	}
+	printf("FAT Entry at %d / 0x%x. Writing 0xffff to it.\n", blocksearch, blocksearch);
 	*blocksearch = 0xffff;
 	/*
 	blockID FATbuf[blocksize / sizeof(blockID)];

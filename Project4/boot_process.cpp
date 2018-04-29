@@ -1,5 +1,3 @@
-#include "SOFAT.hh"
-
 void boot_process(){
 
     int fd = open("Drive2MB",  O_RDWR | O_CREAT, NULL);

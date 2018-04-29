@@ -1,8 +1,0 @@
-#!/bin/bash
-echo 'Show that program can map to 2MB file'
-echo 'Map to blank 2MB file and write to every byte'
-echo 'Writing past end of file will Segfault, and writing less will leave zeros'
-## Get another blank drive to work with
-cp '../../Drive2MBBlankCopy' 'Drive2MB'
-make '2MBtest'
-./2MBtest.out

@@ -83,3 +83,66 @@ blockID SOFAT_allocate_block(blockID predecessor)
 	
 	return new_block_number;
 }
+
+void DirectoryListing_teardown(DirectoryListing *dir)
+{
+	free(dir->filename);
+	free(dir);
+
+	return;
+}
+
+void write_directory_to_position(DirectoryListing *newdir, int *phys_mem_pos)
+{
+	// Write filename in first 100 bytes.
+	strcpy( &( physical_memory[*phys_mem_pos] ), newdir->filename);
+
+	// Advance to location for lock;
+	*phys_mem_pos += PATH_LEN_MAX;
+
+	// Write info bits to next three bytes
+	physical_memory[(*phys_mem_pos)++] = newdir->lock;
+
+	physical_memory[(*phys_mem_pos)++] = newdir->modified;
+
+	physical_memory[(*phys_mem_pos)++] = newdir->subdirectory;
+
+	// Get pointer to write to two bytes of memory.
+	blockID *starting_block_loc = (blockID*) &(physical_memory[*phys_mem_pos]);
+	*starting_block_loc = newdir->starting_block;
+	// Move phys_mem_pos past starting block field.
+	*phys_mem_pos += sizeof(blockID);
+
+	// Set int point to size field to write to four bytes. 
+	int *size_loc = (int*) &(physical_memory[*phys_mem_pos]);
+	*size_loc = newdir->size;
+	// Move phys_mem_pos past size field. 
+	*phys_mem_pos += sizeof(int);
+}
+
+DirectoryListing *read_directory_from_position(int *phys_mem_pos)
+{
+	DirectoryListing *readdir = (DirectoryListing*) malloc(sizeof(DirectoryListing));
+
+	readdir->filename = strdup( &physical_memory[*phys_mem_pos] );
+	*phys_mem_pos += PATH_LEN_MAX;
+
+	readdir->lock = physical_memory[(*phys_mem_pos)++];
+	readdir->modified = physical_memory[(*phys_mem_pos)++];
+	readdir->subdirectory = physical_memory[(*phys_mem_pos)++];
+	
+	// Set blockID pointer to starting block to read in two bytes.
+	blockID *starting_block_loc = (blockID*) &physical_memory[*phys_mem_pos];
+	readdir->starting_block = *starting_block_loc;
+	// Move phys_mem_pos past starting block field.
+	*phys_mem_pos += sizeof(blockID);
+	
+	// Set int point to size field to read in four bytes.
+	int *size_loc = (int*) &(physical_memory[*phys_mem_pos]);
+	readdir->size = *size_loc;
+	// Move phys_mem_pos past size field. 
+	*phys_mem_pos += sizeof(int);
+	
+
+	return readdir;
+}

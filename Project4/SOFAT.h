@@ -155,6 +155,37 @@ void SOFILE_teardown(SOFILE *file);
  */
 void DirectoryListing_teardown(DirectoryListing *dir);
 
+/**** DirectoryListing management ********************
+
+	 Functions translate between DirectoryListing struct
+	 and array of consistently spaced bytes representing
+	 directory listing written to memory.
+
+******************************************************/
+/*
+ *	Function: write_directory_to_position
+ *	Inputs:
+ 	newdir - pointer to DirectoryListing object to write to memory buffer
+ 	phys_mem_pos - pointer to field storing current position in physical memory
+
+ *	Write directory represented by newdir to SOFAT memory at position
+ 	represented by phys_mem_pos. Advance phys_mem_pos past listing.
+ */
+void write_directory_to_position(DirectoryListing *newdir, int *phys_mem_pos);
+
+/*
+ *	Function read_directory_from_position
+ *	Input: phys_mem_pos - pointer to field storing current position in
+ 	physical memory.
+ *	Return: Struct representing directory listing.
+
+ *	Read directory listing from physical memory at phys_mem_pos, assemble
+ 	into DirectoryListing struct and return.
+ *	Note: No checking is performed. If location isn't beginning of listing,
+ 	or listing is blank, garbage is returned.
+ */
+DirectoryListing *read_directory_from_position(int *phys_mem_pos);
+
 //#include "DirectoryListObject.cpp"
 
 //DirectoryListObject *working_directory;

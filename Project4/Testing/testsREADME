@@ -14,10 +14,25 @@ Functions/Components validated:
 First test just shows that allocating space puts bytes where they're expected.
 Run script resetdrive. It copies a blank drive into this folder, essentially
 wiping Drive2MB clean.
-Next, compile and run allocate_drive.cpp. It reads more than a block of text from the file
+Next, compile and run allocate_drive.c. It reads more than a block of text from the file
 'blockandchange.txt', which has a length of 1018 bytes, more than a single block, but
 less than two blocks. It writes one character at a time to the first block until the
 first block is full. It writes to the second block until it runs out of characters in
 the sample text. Then, it reads the characters written in the first block, looks in the
 FAT to find the successor to the first block, and reads from the second block until reaching
 the SO EOF indicator. The output is continuous text that matches the text in the input file.
+This test -- and the work that led up to it -- was done in C++, but minor changes to run in straight C don't break the test, so I consider the underlying functions to be the same.
+I include sample output in file COut.txt.
+
+** Show directory listings are written and read consistently in directory blocks **
+** Show files can be found and read correctly from their directory listings **
+Functions validated:
+	write_directory_to_position
+	read_directory_from_position
+
+Run script resetdrive. Compile and run fill_root_dirs.c. It contains explicit logic of reading and writing directories, and many print statements. It outputs long explicit traces
+of reading, writing and navigation. Variable rw_pos holds offset in physical memory as number of bytes, and is regularly displayed in outputs. DirectoryListing objects are 0x80 bytes long, which is a quarter of a data block. Constants are used to advance rw_pos from the beginning of a listing to a specific location within the listing, or to the next listing.
+The program boots and then sets rw_pos to the beginning of root data. It creates DirectoryListing objects for three new directories in local variables. Every DirectoryListing that's created in this program sets its starting block to the return of the allocate_block function, meaning DirectoryListings are all getting fresh blocks. Then it writes the data objects to root data, using a function that spaces DirectoryListing fields consistently, giving each 2^7 bytes, and advances rw_pos to the end of the listing. Then rw_pos is advanced to the third directory data area and a DirectoryListing for a textfile is written. rw_pos is set to the block indicated by starting_block in the current listing, for the text file. A text fragment saved as a string constant locally is then written to textfile's data.
+Next everything is read back. rw_pos is set to the beginning of root. Three calls to a function for reading DirectoryListings out of the SOFAT byte array give the three directories written earlier. An additional call outputs garbage, correctly.
+rw_pos is again set to the beginning of root. Then the program does a linear search through directory listings for one that begins with the string 'thirddir'. When that one is found, the startingblock field is read, and rw_pos is set to the block indicated. In that block, the first entry is read for its starting block, and rw_pos is set to that block. Finally, program reads from the current rw_pos until reaching an end-of-file indicator, the constant SEOF. At every step throughout, current rw_pos is displayed.
+I include sample output in dirlisting_rw.txt.

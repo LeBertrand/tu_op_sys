@@ -1,0 +1,220 @@
+PATH_LEN_MAX is set to 119, rather than 248
+
+
+First line of code.
+
+Booted up successfully.
+
+Positioned read/write head to start of root at 0x2200.
+
+Created DirectoryListing objects.
+
+Allocated first block of memory
+
+Copied string pointer to DirectoryListing struct's filename field
+
+*********************************************************************
+
+Copying directory filename firstdir to physical_memory location 0x2200
+
+Copied.
+
+Read/Write position is now 0x2277
+
+Wrote lock open
+
+Read/Write position is now 0x2278
+
+Wrote modified bit false
+
+Read/Write position is now 0x2279
+
+Wrote subdirectory true
+
+Read/Write position is now 0x227a
+
+Wrote starting block 1
+
+Read/Write position is now 0x227c
+
+Wrote size 0
+
+Read/Write position is now 0x2280
+
+Wrote first directory to root, setting starting block to 1.
+
+*********************************************************************
+
+Copying directory filename seconddir to physical_memory location 0x2280
+
+Copied.
+
+Read/Write position is now 0x22f7
+
+Wrote lock open
+
+Read/Write position is now 0x22f8
+
+Wrote modified bit false
+
+Read/Write position is now 0x22f9
+
+Wrote subdirectory true
+
+Read/Write position is now 0x22fa
+
+Wrote starting block 2
+
+Read/Write position is now 0x22fc
+
+Wrote size 0
+
+Read/Write position is now 0x2300
+
+Wrote second directory to root, setting starting block to 2.
+
+*********************************************************************
+
+Copying directory filename thirddir to physical_memory location 0x2300
+
+Copied.
+
+Read/Write position is now 0x2377
+
+Wrote lock open
+
+Read/Write position is now 0x2378
+
+Wrote modified bit false
+
+Read/Write position is now 0x2379
+
+Wrote subdirectory true
+
+Read/Write position is now 0x237a
+
+Wrote starting block 3
+
+Read/Write position is now 0x237c
+
+Wrote size 0
+
+Read/Write position is now 0x2380
+
+Wrote third directory to root, setting starting block to 3.
+
+*********************************************************************
+
+Copying directory filename textfile to physical_memory location 0x2800
+
+Copied.
+
+Read/Write position is now 0x2877
+
+Wrote lock open
+
+Read/Write position is now 0x2878
+
+Wrote modified bit false
+
+Read/Write position is now 0x2879
+
+Wrote subdirectory false
+
+Read/Write position is now 0x287a
+
+Wrote starting block 4
+
+Read/Write position is now 0x287c
+
+Wrote size 0
+
+Read/Write position is now 0x2880
+
+Wrote file to third directory, setting starting block to 4.
+
+Wrote size 0x80 to physical location 0x2300, the size field of thirddir.
+
+Wrote text to file data block at location 0x2a00
+
+At beginning of root directory. Reading...
+
+
+
+*********************************************************************
+
+Read/Write position is now 0x2200
+
+Read subdir name firstdir.
+Read/Write position is now 0x2277
+
+Lock: 1, Modified: 0, Subdirectory: 0
+Read/Write position is now 0x227a
+
+Starting Block: 1
+Read/Write position is now 0x227c
+
+Size of directory: 0
+Read/Write position is now 0x2280
+
+*********************************************************************
+
+Read/Write position is now 0x2280
+
+Read subdir name seconddir.
+Read/Write position is now 0x22f7
+
+Lock: 1, Modified: 0, Subdirectory: 0
+Read/Write position is now 0x22fa
+
+Starting Block: 2
+Read/Write position is now 0x22fc
+
+Size of directory: 0
+Read/Write position is now 0x2300
+
+*********************************************************************
+
+Read/Write position is now 0x2300
+
+Read subdir name thirddir.
+Read/Write position is now 0x2377
+
+Lock: 1, Modified: 0, Subdirectory: 0
+Read/Write position is now 0x237a
+
+Starting Block: 3
+Read/Write position is now 0x237c
+
+Size of directory: 128
+Read/Write position is now 0x2380
+
+*********************************************************************
+
+Read/Write position is now 0x2380
+
+Read subdir name .
+Read/Write position is now 0x23f7
+
+Lock: 0, Modified: 0, Subdirectory: 0
+Read/Write position is now 0x23fa
+
+Starting Block: 0
+Read/Write position is now 0x23fc
+
+Size of directory: 0
+Read/Write position is now 0x2400
+
+Reading through listings in root. Current position - 0x2200, 1024 until end of search area.
+Reading directory name firstdir.
+
+Reading through listings in root. Current position - 0x2280, 896 until end of search area.
+Reading directory name seconddir.
+
+Found listing at 0x2300.
+Found file starting_block 3 at location 0x237a
+
+Attempting read of block at physical location 0x2a00 / 10752
+
+endowed by their creator certain inalienable rights,and that among these are life, liberty and pursuit of happiness
+Completed read of file

@@ -1,9 +1,21 @@
-#include "SOFAT.hh"
+#include <SOFAT.h>
+
+short block_byte_map(blockID block, unsigned char page_offset){
+	return blocksize * block + page_offset;
+}
 
 blockID get_successor_FAT_entry(blockID predecessor)
 {
 	blockID successor = *(start_of_FAT + predecessor*sizeof(blockID));
 	return successor==0xffff?-1:successor;
+}
+
+char *linux_SOFAT_addr_translate(char *linux_virt_address){
+	// Ugliest workaround ever, but code compiles.
+	// Was getting type error, even though it's all char *.
+	long int addr = (long int) linux_virt_address;
+	addr -= (long int) physical_memory;
+	return (char*) addr;
 }
 
 void boot_process(){
@@ -36,7 +48,7 @@ void boot_process(){
 	end_of_FAT = (blockID*) start_of_root - sizeof(blockID);
 
 	//working_directory = new DirectoryListObject();
-
+	working_directory = (SOFILE*) malloc(sizeof(SOFILE));
 }
 
 blockID SOFAT_allocate_block(blockID predecessor)

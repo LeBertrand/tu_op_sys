@@ -1,0 +1,23 @@
+Now opening sample text.
+FAT Entry number 1, writing 0xffff to location 512 / 0x200.
+Linux virtual address of first write location is 140292749731840.
+SOFAT physical address of first write is 10240 / 2800.
+First block number is 1.
+Block full
+FAT Entry number 1, writing 0x2 to location 514 / 0x202.
+FAT Entry number 2, writing 0xffff to location 514 / 0x202.
+
+Second block number is 2.
+Linux virtual address of second write location is 140292749732352.
+SOFAT physical address of second write is 10752 / 2a00.
+Filled Second Block
+Try reading back...
+
+SOFAT physical address of first read location is 10240.
+Student advisees often come to my office, rubbing their hands together, furrowing their brows and asking me to walk along with them as they ponder life after graduation. Just the other day, a sophomore made an appointment because he was worrying about whether he should become a doctor or a philosophy professor. A few minutes later, he nervously confessed that he had also thought of giving stand-up comedy a whirl.
+As an occupational counselor, my kneejerk reaction has always been, ‚ÄúWhat are you most passi
+Found second block at 2.
+SOFAT physical address of first read location is 10752.
+onate about?‚Äù Sometimes I‚Äòd even go into a sermonette about how it is important to distinguish between what we think we are supposed to love and what we really love.
+But is ‚Äúdo what you love‚Äù wisdom or malarkey?
+In a much discussed article in Jacobin magazine early this year, the writer Miya Tokumitsu argued that the ‚Äúdo what you love‚Äù ethos so ubiquitous in our culture is in fact elitist because it degrades work that is not done from love. It also ignores the idea that work itself posseˇˇˇˇˇˇ

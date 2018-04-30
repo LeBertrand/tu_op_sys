@@ -1,45 +1,86 @@
 
 /*
- *	Project 4 Header File
+ *	Project 4 Header Internal Functions File
  *	Shmuel's OS File Allocation Table - File System Implementation
  *	Temple University, Intro to Operating Systems, Spring 2018
 
- *	Functions to be used in file management by File System and by applications.
+ *	Functions to be used in file management by File System. Below functions are for internal use.
+ *	See API header for abstracted file system functions.
  
- *	This project involves C++ because I determined that file objects with member
- 	methods would be helpful for my own implementation of open file objects.
- 	Otherwise, I've maintained consistency with C, using my own implementation
- 	of the boolean type and character arrays insted of std:string objects.
+ *	This project may show traces of an earlier C++ implementation that's been removed.
+ 	I lost my patience with C++ and switch back to C.
  */
 
+#include <stdlib.h>
 #include <stdio.h>
- 
+#include <string.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+
 #ifndef BOOLEAN_T
 #define BOOLEAN_T
-typedef enum boolean_t { false = 0, true = 1 } boolean_t;
+typedef enum { false = 0, true = 1 } boolean_t;
 #endif
 
 
 #ifndef PROJECT4H
 #define PROJECT4H
 
-typedef struct DirectoryListing {
-	char filename[100];
-	boolean_t lock;
-	boolean_t subdirectory;
-	short starting_block;
-	int size
-} DirectoryListing;
+// Number of blocks before block numbering begins
+static const char bootblocks = 1; // Only one block ever given to boot info.
+static char blocks_offset = 0; // Statically initialize to 0, but reset in boot procedure
+static char FATblocks = 0; // ' '
+static char rootblocks = 0; // ' '
+static char MAX_BLOCKID = 212;
 
 // Currently working with 2^12 blocks
-typedef unsigned short blockID;
-const unsigned short blocksize = 512;
-const int MB_SIZE = 0x100000;
+typedef short blockID;
+static const unsigned short blocksize = 512;
+static const int MB_SIZE = 0x100000;
+static const char SEOF = -2;
+static const unsigned char PATH_LEN_MAX = 0x77;
 
-// Number of blocks before block numbering begins
-char blocks_offset = 0; // Statically initialize to 0, but reset in boot procedure
-char FATblocks = 0; // ' '
-char rootblocks = 0; // ' '
+// Convenience pointer to start of FAT for searching FAT entries.
+static blockID *start_of_FAT, *end_of_FAT;
+// Convenience pointer to start of root for traversing file tree.
+static char *start_of_root;
+
+// Global scope for pointer to memory map buffer
+static char *physical_memory;
+
+/* Data struct used to write directories to data area.
+Functions gather necessary file or subdirectory info in struct and
+then write it to data area of parent directory.
+
+Potentially, one byte of status bits could be developed to shrink
+struct by two bytes, but that's low priority, since space isn't an issue
+and design would be more complicated. */
+typedef struct DirectoryListing {
+	char *filename;
+	boolean_t lock;
+	boolean_t modified;
+	boolean_t subdirectory;
+	blockID starting_block;
+	int size;
+} DirectoryListing;
+
+const int DirectoryListingLen = 0x80;
+const int DL_StartingBlockOffset = 0x7a;
+
+/* Struct used by API functions for reading and manipulation of data
+according to logic of filesystem rather than physical location.
+Don't try to use as POSIX FILE struct. IO is implemented using these,
+but the POSIX equivalent is dirent. */
+
+typedef struct {
+	char *abs_path;
+	blockID first_SOFAT_entry;
+	unsigned short bytes_written;
+	long int phys_start_loc;
+	long int current_position;
+	blockID parentdirectory; // Block number of parent.
+} SOFILE ;
 
 /*
  * Function: block_byte_map
@@ -49,14 +90,24 @@ char rootblocks = 0; // ' '
  * Return physical address indicated by block number and byte offset
 
  * Convenience function to turn block number:offset pair into one
-   physical address.
+   physical address offset (number of bytes from start of
+   physical memory).
  */
-int block_byte_map(int block, int page_offset){
-	return blocksize * block + page_offset;
-}
+short block_byte_map(blockID block, unsigned char page_offset);
 
 /*
- * Function: SOFAT_allocat_block
+ *	Function: Linux_SOFAT_translate
+ *	Input:
+ 	linux_virt_address - Memory pointer, really a virtual address
+ 	from Linux program running SOFAT.
+ *	Return - physical address on drive addressed by SOFAT
+ *	Use function to reduce human confusion in checking
+ *	
+ */
+char *linux_SOFAT_addr_translate(char *linux_virt_address);
+
+/*
+ * Function: SOFAT_allocate_block
  * Input:
  	predecessor - blockID of the block to be extended, or 0
  * Throws:
@@ -70,147 +121,43 @@ int block_byte_map(int block, int page_offset){
  */
 blockID SOFAT_allocate_block(blockID predecessor);
 
-class DirectoryListObject {
+/*
+ *	Function: get_successor_FAT_entry
+ *	Input:
+ 	predecessor - block to look up in FAT
+ *	Return: -1 if predecessor is in fact end of file, else blockID
+ 	of block following predecessor.
+ */
+blockID get_successor_FAT_entry(blockID predecessor);
 
-	public:
-		/*
-		 *	No arguments to constructor. Object starts at root by default.
-		 *	All internal fields set to refer to root.
-		 */
-		DirectoryListObject();
-		/*
-		 * Function: advance_position
+/*
+ *	Function: boot_process
+ *	Reads in values to determine blocks offset to data area.
+	Create new DirectoryListObject for current working directory.
+ */
+void boot_process();
 
-		 * Advance W/R position by one.
-		 */
-		void advance_position();
+/*
+ *	Function: SOFILE_teardown
+ *	Input:
+ 	file - struct to destroy
 
-		/*
-		 * Function: backtrack
+ *	Free all memory used by struct and components.
+ */
+void SOFILE_teardown(SOFILE *file);
 
-		 * Retract W/R position by one.
-		 */
-		void backtrack();
+/*
+ *	Function: DirectoryListing_teardown
+ *	Input:
+ 	dir - struct to destroy
 
-		/*
-		 *	Function: change_directory
-		 *	Input:
-		 	directoryname - name of subdirectory to navigate to
-		 *	Return true if navigated to directory, else return false.
+ *	Free all memory used by struct and components.
+ */
+void DirectoryListing_teardown(DirectoryListing *dir);
 
-		 *	Change object to reflect a new directory. Map memory
-		 	and update all fields to make that the working directory.
-		 */
-		boolean_t change_directory(char *directory_name);	
+//#include "DirectoryListObject.cpp"
 
-		/*
-		 *	Function: open_file
-		 *	Input:
-		 	name - filename in current directory, or absolute file path delimited by '/'
-		 	options - flags
-		 *	Return DirectoryListingObject set to named file.
-
-		 *	Try to open file of given name by returning DirectoryListingObject
-		 	to represent it. If argument is a single token, try to open as
-		 	relative path. Else try absolute path from root. For file in root,
-		 	~/filename works.
-		 */
-		static DirectoryListObject open_file(char *name, ...);
-
-		/*
-		 *	Function: create_file
-		 *	Input:
-		 	name - filename in current directory, or absolute file path delimited by '/'
-		 	options - flags
-		 *	Return true if file created, else false
-
-		 *	Try to create file of given name. If argument is a single token, try to open as
-		 	relative path. Else try absolute path from root. For file in root,
-		 	~/filename works. Space allocation is handled. Function safe a application level.
-		 */
-		static boolean_t create_file(char *pathname, ...);
-
-		/*
-		 *	Function: create_directory
-		 *	Input:
-		 	name - name of new director
-		 	options - flags
-
-		 *	Create new subdirectory in current directory, with given pathname.
-		 */
-		static void create_directory(char *pathname, ...);
-
-		/*
-		 *	Function: close_file
-		 *
-		 *	Close file currently represented by this object, and clean up object.
-		 *	Unlock file, update info in directory listing, and update internal fields.
-		 */
-		static void close_file();
-
-		/*
-		 *	Function: write_file
-		 *	Input: input_string - string to insert in file at current position
-
-		 *	Return number of characters written
-
-		 *	Write given string to file. Allocate space as necessay.
-		 	Return number of bytes written, which in normal cases should be
-		 	length of input_string.
-		 */
-		int write_file(char *input_string);
-
-		/*
-		 *	Function: read_file
-		 *	Input: num_characters - Maximum number of characters to read from file
-		 *	Write given string to file. Allocate space as necessay.
-		 *	Return number of bytes written, which in normal cases should be
-		 	length of input_string.
-
-		 *	Read from file, a maximum of n characters, copy into buffer, and
-		 	return location of buffer.
-		 *	Read not supported on string length more than 2^8 
-		 */
-		char *read_file(long n);
-
-		/*
-		 *	Function: delete_file
-		 *	Input: filename - local name or absolute path of file to delete
-		 *	Return true if file found and deleted, else false
-		 
-		 *	Search for file with name passed. If file found, show its blocks
-			as available, and clear its directory listing.
-		 	
-		 */
-		boolean_t delete_file(char *filename);
-		 
-		/*
-		 *	Function: seek_position
-		 *	Input: N - byte number target for position pointer
-		 *	Return number of bytes read, up to N.
-		 */
-		long seek_position(long N);
-
-	private:
-		// Buffer mapped to current data block
-		char open_memory[512];
-		// Number of data block currently mapped to memory
-		blockID data_block;
-		// Pointer to physical location where current data block begins
-		char *current_block_start;
-		// Read/Write position in current block
-		short current_position;
-		// Pointer to parent starting block
-		blockID; parent_starting_block;
-		// Bytes written since last update to DirectoryListing
-		long bytes_written;
-		
-		
-		// Map to new block
-		boolean_t remap(blockID);
-
-} ;
-
-DirectoryListObject working_directory;
+//DirectoryListObject *working_directory;
+SOFILE *working_directory;
 
 #endif

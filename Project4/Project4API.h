@@ -13,12 +13,15 @@
 
 /*
 		 *	Function: open_file
-		 *	Input: char * containing file path
+		 *	Input:
+		 	    path - string containing file path
+		 	    working_directory - directory containing file, ignored if path is absolute
 		 *	Try to open file of given name by returning SOFILE struct
 		 	to represent it.
+		 *	
 
 		 	// TODO: If argument is a single token, try to open as
 		 	relative path. Else try absolute path from root. For file in root,
 		 	~/filename works.
 		 */
-SOFILE *open_file(const char *path);
+SOFILE *open_file(const char *path, SOFILE *working_directory);

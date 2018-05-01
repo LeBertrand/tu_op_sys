@@ -84,6 +84,14 @@ blockID SOFAT_allocate_block(blockID predecessor)
 	return new_block_number;
 }
 
+void SOFILE_teardown(SOFILE *sofile)
+{
+	free(sofile->abs_path);
+	free(sofile);
+
+	return;
+}
+
 void DirectoryListing_teardown(DirectoryListing *dir)
 {
 	free(dir->filename);

@@ -8,7 +8,7 @@
  	by applications for file functionality.
 
  *	This project may show traces of an earlier C++ implementation that's been removed.
- 	I lost my patience with C++ and switch back to C.
+ 	I lost my patience with C++ and switched back to C.
  */
 
 /*

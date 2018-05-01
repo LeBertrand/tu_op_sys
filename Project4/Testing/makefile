@@ -18,4 +18,3 @@ boot_process: ../boot_process.cpp
 
 rw_dirlisting: fill_root_dirs.c
 	gcc fill_root_dirs.c -I.. -o DirListingDemo.out
-	cp ../Drive2MBBlankCopy Drive2MB

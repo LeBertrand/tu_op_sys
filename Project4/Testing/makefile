@@ -16,7 +16,6 @@ allocateTest: allocate_driver.c ../boot_process.o ../SOFAT_allocate_block.c
 boot_process: ../boot_process.cpp
 	g++ ../boot_process.cpp -c ../boot_process.o
 
-rw_dirlisting: rw_root_dirs.c
-	gcc rw_root_dirs.c -I.. -o DirListingDemo.out
+rw_dirlisting: fill_root_dirs.c
+	gcc fill_root_dirs.c -I.. -o DirListingDemo.out
 	cp ../Drive2MBBlankCopy Drive2MB
-	./resetdrive

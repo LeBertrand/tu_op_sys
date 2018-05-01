@@ -73,7 +73,7 @@ int main()
 		DirectoryListingLen, third_dir_phy_loc + 0x7c);
 
 	// Write file data to file data block.
-	rw_pos = block_byte_map(bootblocks + FATblocks + filelisting.starting_block, 0);
+	rw_pos = block_byte_map(bootblocks + FATblocks + rootblocks + filelisting.starting_block, 0);
 	strcpy( &physical_memory[ rw_pos ], humanrights);
 	printf("Wrote text to file data block at location 0x%x\n\n", rw_pos);
 
@@ -111,20 +111,35 @@ int main()
 	if(rw_pos >= blocks_offset*blocksize){
 		fprintf(stderr, "Root is full. Logic error spacing directory listings.");
 		exit(1);
-	} // Post: hit end of root or found open list spot
+	} // Post: found listing spot
 	printf("Found listing at 0x%x.\n", rw_pos);
 	/* Cast array location to blockID pointer to read two bytes. Offset by known
 	length of DirectoryListing until startingblock. */
 
-	// Move up through listing to find starting block.
+	// Move up through listing to find starting block of directory thirddir.
 	rw_pos += DL_StartingBlockOffset;
 
 	// Set blockID pointer to read out two bytes.
 	blockID *block_finder = (blockID*) &physical_memory[rw_pos];
 	printf("Found file starting_block %d at location 0x%x\n\n", *block_finder, rw_pos);
 
-	// Go to data block indicated.
-	rw_pos = block_byte_map(rootblocks + FATblocks + *block_finder, 0);
+	// Search directory for location of textfile -- known in this case to be the only content listed.
+	rw_pos = block_byte_map(bootblocks + FATblocks + *block_finder, 0);
+	printf("Read/Write position is now 0x%x\n\n", rw_pos);
+	endsearchat = rw_pos + 0x200; // Known to be length in this case. Really must be scanned in parent listing.
+	while( strcmp( &physical_memory[rw_pos], "textfile") &&
+		(rw_pos < endsearchat) ){
+		printf("Reading through listings in root. Current position - 0x%x, %d until end of search area.\n",
+			rw_pos, endsearchat - rw_pos);
+		printf("Reading directory name %s.\n\n", &physical_memory[rw_pos]);
+		rw_pos += DirectoryListingLen;
+	} // post: Found listing for textfile
+	printf("Read/Write position is now 0x%x\n\n", rw_pos);
+	block_finder = (blockID*) &physical_memory[rw_pos + DL_StartingBlockOffset];
+	printf("Found file starting_block %d at location 0x%x\n\n", *block_finder, rw_pos);
+
+	// Move to textfile data area.
+	rw_pos = block_byte_map(FATblocks + bootblocks + rootblocks + *block_finder, 0);
 	printf("Attempting read of block at physical location 0x%x / %d\n\n", rw_pos, rw_pos);
 	while( physical_memory[rw_pos] != SEOF){
 		putchar(physical_memory[rw_pos++]);

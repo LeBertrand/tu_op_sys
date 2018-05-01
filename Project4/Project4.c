@@ -34,7 +34,7 @@ void boot_process(){
 
 	// TODO: Replace hard coded stuff with reading the boot sector.
 	FATblocks = 0x10; // 16 blocks are the FAT
-	rootblocks = 2;
+	rootblocks = 8;
 	blocks_offset = rootblocks + FATblocks + bootblocks;
 
 	/***************************************************
